@@ -10,11 +10,13 @@ from bs4 import BeautifulSoup
 # from requests import * # import all function & use function w/o requests.
 from requests import get_html as getHTML # alias
 
+import crawler
+
 def usage() : # how to use
     # """ means `string`
     return """
-        python3 main.py -id "user id"
-        python3 main.py --userid "user id"
+        python3 main.py -u "user name"
+        python3 main.py --username "user name"
     """
 
 def arg_required(args, fields = []) :
@@ -26,25 +28,30 @@ def arg_required(args, fields = []) :
 if __name__ == '__main__' : # run this script in the interpreter. http://pythonstudy.xyz/python/article/17-%EB%AA%A8%EB%93%88-Module
     # arg parser
     parser = argparse.ArgumentParser(description="Instagram Crawler - SMS version", usage=usage())
-    parser.add_argument("-id", "--userid", help="insta id")
+    parser.add_argument("-u", "--username", help="insta id")
 
     args = parser.parse_args()
 
-    if args.userid is not None :
-        arg_required("userid")
+    if args.username is not None :
+        arg_required("username")
 
-        # etc
-        URL = "https://www.instagram.com/" + args.userid
-        html = getHTML(url = URL) # Named Parameter
-        soup = BeautifulSoup(html, 'html.parser')
-        print(soup)
+        instagramCrawler = crawler.InstagramCrawler() # create instance
+        print("URL : " + instagramCrawler.URL)
 
-        #param = "react-root"
-        field = "div"
-        param = "area_newsstand"
-        #table = soup.find('section', {'class': class_name})
-        table = soup.find(field, {'class': param})
-        print(table)
+        instagramCrawler.get_user_posts(args.username)
+
+        # # etc
+        # URL = "https://www.instagram.com/" + args.username
+        # html = getHTML(url = URL) # Named Parameter
+        # soup = BeautifulSoup(html, 'html.parser')
+        # print(soup)
+
+        # #param = "react-root"
+        # field = "div"
+        # param = "area_newsstand"
+        # #table = soup.find('section', {'class': class_name})
+        # table = soup.find(field, {'class': param})
+        # print(table)
     else :
         parser.print_help()
         usage()
