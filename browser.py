@@ -37,6 +37,7 @@ class Browser :
 
     # ??
     def find_one(self, css_selector, elem=None, waittime=0):
+        print("find_one : " + css_selector)
         obj = elem or self.driver
 
         if waittime:

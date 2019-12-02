@@ -40,6 +40,8 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
 
         instagramCrawler.get_user_posts(args.username)
 
+        instagramCrawler.login();
+
         # # etc
         # URL = "https://www.instagram.com/" + args.username
         # html = getHTML(url = URL) # Named Parameter
