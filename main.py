@@ -12,6 +12,8 @@ from requests import get_html as getHTML # alias
 
 import crawler
 
+from file_inout import write_to_file, read_from_file
+
 def usage() : # how to use
     # """ means `string`
     return """
@@ -29,16 +31,47 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
     # arg parser
     parser = argparse.ArgumentParser(description="Instagram Crawler - SMS version", usage=usage())
     parser.add_argument("-u", "--username", help="insta id")
+    parser.add_argument("-pw", "--password", help="insta pw")
+    parser.add_argument("-c", "--count", type=int, help="post count")
 
     args = parser.parse_args()
+    print("args : %s" % args)
+    # sys.exit()
 
     if args.username is not None :
         arg_required("username")
+        arg_required("password")
 
         instagramCrawler = crawler.InstagramCrawler() # create instance
         print("URL : " + instagramCrawler.URL)
 
-        instagramCrawler.get_user_posts(args.username)
+        # instagramCrawler.get_user_posts(args.username)
+
+        # instagramCrawler.login()
+        instagramCrawler.login(args.username, args.password)
+        instagramCrawler.login_close_noti()
+
+        ## test. Get User Profile
+        # kim_chan_yong = "kim_chan_yong"
+        # kim_chan_yong = instagramCrawler.get_user_profile(kim_chan_yong)
+        # print("get_user_profile : %s" % kim_chan_yong)
+
+        # stellajang_official = "stellajang_official"
+        # interstellajang = "interstellajang"
+        huni543hun = "huni543hun"
+        outputComment, outputList = instagramCrawler.get_user_posts(username=huni543hun, number=args.count, retComment=True, retLikeList=True)
+        
+        for o in outputComment :
+            write_to_file(path="./output_comment.txt", data=o, option='a')
+
+        for o in outputList :
+            write_to_file(path="./output.txt", data=o, option='a')
+        
+        inputList = read_from_file(path="./output.txt")
+        for i in inputList :
+            print("%s" % i)
+        # stellajang_official = instagramCrawler.get_user_posts(stellajang_official)
+        # print("get_user_posts : %s" % stellajang_official)
 
         instagramCrawler.login();
 

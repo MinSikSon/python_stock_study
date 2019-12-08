@@ -24,6 +24,7 @@ from time import sleep
 class Crawler :
     pass
 
+
 class InstagramCrawler (Crawler) : # inherit Crawler class
 # class variables. (all class instance share this variables.)
     URL = "https://www.instagram.com"
@@ -41,21 +42,35 @@ class InstagramCrawler (Crawler) : # inherit Crawler class
         if ele_login[2] :
             ele_login[2].click()
 
+<<<<<<< Updated upstream
     def login(self) :
+=======
+    def login(self, username="username", password="password") :
+>>>>>>> Stashed changes
         print("[crawler.py] login()")
         browser = self.browser
         # browser = Browser(True)
         __url = "%s/accounts/login/" % (InstagramCrawler.URL)
         browser.get(__url)
         __u_input = browser.find_one('input[name="username"]')
-        __u_input.send_keys(secret.username)
+        # __u_input.send_keys(secret.username)
+        __u_input.send_keys(username)
+
         __p_input = browser.find_one('input[name="password"]')
-        __p_input.send_keys(secret.password)
+        # __p_input.send_keys(secret.password)
+        __p_input.send_keys(password)
 
         __login_btn = browser.find_one(".L3NKy")
         __login_btn.click()
 
-    # ??
+    def login_close_noti(self) :
+        browser = self.browser
+
+        # browser.implicitly_wait(1)
+
+        __later_btn = browser.find_one(".aOOlW.HoLwm")
+        __later_btn.click()
+
     def get_user_profile(self, username) :
         print("[crawler.py] get_user_profile()")
         browser = self.browser
@@ -76,20 +91,99 @@ class InstagramCrawler (Crawler) : # inherit Crawler class
             "following_num" : __following_num
         }
 
+    def get_user_posts(self, username, number=3, detail=False, retComment=False, retLikeList=False) :
+        print("[crawler.py] get_user_posts()")
 
-    def get_user_posts(self, username, number=None, detail=False) :
+        browser = self.browser
+
         __user_profile = self.get_user_profile(username)
+<<<<<<< Updated upstream
         print("get_user_posts : %s" % __user_profile)
 
         if number is None :
             __number = utils.instagram_int(__user_profile["post_num"])
+=======
+        print("get_user_profile : %s" % __user_profile)
+>>>>>>> Stashed changes
 
-        self._dismiss_login_prompt()
+        # # browser.page_down()
 
+        if number is None :
+            __number = utils.instagram_int(__user_profile["post_num"])
+        else :
+            __number = number + 1
+        __post = browser.find_one("._9AhH0")
+        # __post = browser.find_one_by_xpath("/html/body/span/section/main/div/div[4]/article[2]/div[1]/div/div[1]/div[1]/a/div/div[2]")
+        # print("__post : %s" % __post)
+        __post.click()
+
+
+        __get_comments = []
+        __get_elements = []
+        for cnt in range(1, __number) :
+            __btns = browser.find(".sqdOP.yWX7d._8A5w5")
+            __like_btn = __btns[1]
+            __like_btn.click()
+
+            # browser.implicitly_wait(5)
+            
+            # comments
+            __get_comment = browser.find_one_by_xpath('/html/body/div[4]/div[2]/div/article/div[2]/div[1]/ul/div/li/div/div/div[2]/span')
+            print("__get_comment.text : %s" % __get_comment.text)
+            __get_comments.append(__get_comment.text)
+
+            # like
+            like_idx = 1
+            while(True) :
+                xpath = "/html/body/div[5]/div/div[3]/div/div/div[%s]/div[2]/div[1]/div/a/div/div/div" % like_idx
+                __get_element = browser.find_one_by_xpath(xpath)
+                if(__get_element is None) : break
+                __get_elements.append(__get_element.text)
+                # print("__get_elements : %s" % __get_elements)
+                # browser.page_down()
+                like_idx = like_idx + 1
+
+            print("__get_elements : %s" % __get_elements)
+
+            # close
+            __close_btn = browser.find_one_by_xpath('/html/body/div[5]/div/div[1]/div/div[2]/button')
+            __close_btn.click()
+
+            # next
+
+            if cnt is not __number - 1 :
+                __next_btn = browser.find_one_by_xpath('/html/body/div[4]/div[1]/div/div/a[2]')
+                if __next_btn is None :
+                    __next_btn = browser.find_one_by_xpath('/html/body/div[4]/div[1]/div/div/a')
+                __next_btn.click()
+        
+        if retComment == True and retLikeList == True:
+            return __get_comments, __get_elements
+        if retLikeList == True:
+            return __get_elements
+
+        # __posts = [ele.text for ele in browser.find("._9AhH0")]
+
+        # return __post
         # if detail is not False :
         #     return self._get_posts_full(number)
         # else :
         #     return self._get_posts(number)
+
+
+    # def get_user_posts(self, username, number=None, detail=False) :
+    #     __user_profile = self.get_user_profile(username)
+    #     print("get_user_posts : %s" % __user_profile)
+
+    #     if number is None :
+    #         __number = utils.instagram_int(__user_profile["post_num"])
+
+    #     self._dismiss_login_prompt()
+
+    #     # if detail is not False :
+    #     #     return self._get_posts_full(number)
+    #     # else :
+    #     #     return self._get_posts(number)
 
 
     # ???!!!

@@ -9,6 +9,8 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
+from selenium.webdriver.common.keys import Keys
+
 from utils import randmized_sleep
 
 class Browser :
@@ -30,14 +32,18 @@ class Browser :
             service_args=service_args,
             chrome_options=chrome_options
         )
-        self.driver.implicitly_wait(5) # 암시적으로 최대 5초간 대기
+        self.driver.implicitly_wait(4) # 암시적으로 최대 5초간 대기
 
     def get(self, url) :
         self.driver.get(url) # url에 접속
 
     # ??
     def find_one(self, css_selector, elem=None, waittime=0):
+<<<<<<< Updated upstream
         print("find_one : " + css_selector)
+=======
+        # print("find_one : " + css_selector)
+>>>>>>> Stashed changes
         obj = elem or self.driver
 
         if waittime:
@@ -50,6 +56,13 @@ class Browser :
         except NoSuchElementException:
             return None
 
+    def find_one_by_xpath(self, xpath) :
+        driver = self.driver
+
+        try:
+            return driver.find_element_by_xpath(xpath)
+        except NoSuchElementException:
+            return None
 
     # ??
     def find(self, css_selector, elem=None, waittime=0):
@@ -71,10 +84,24 @@ class Browser :
     def implicitly_wait(self, time) :
         self.driver.implicitly_wait(time)
 
-    # ??
+    # http://bongholee.com/2017/06/python-web-crawling을-통해-raw-data-구하기-selenium-library/
+    def page_down(self, wait=3) :
+        print("[browser.py] page_down()")
+
+        elem = self.find('.RnEpo.Yx5HN')
+        print("elem : %s " % elem)
+        elem[0].send_keys(Keys.END)
+        randmized_sleep(wait)
+        # print("elem : %s" % elem)
+        # print("elem.text : %s" % elem.text)
+        # print("elem.value : %s" % elem.value)
+
+        # elem.send_keys(Keys.PAGE_DOWN)
+    
     def scroll_down(self, wait=0.3):
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         randmized_sleep(wait)
+
 
     def scroll_up(self, offset=-1, wait=2):
         if offset == -1:
