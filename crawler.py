@@ -24,6 +24,41 @@ from time import sleep
 class Crawler :
     pass
 
+class GoogleCrawler (Crawler) :
+    # 검색어 입력
+
+    def __init__(self) :
+        self.browser = Browser()
+        self.browser.get("https://www.google.com")
+
+    def input_and_click_btn(self, keyword, input_path, btn_xpath=None) :
+        browser = self.browser
+
+        __input = browser.find_one(input_path)
+        __input.send_keys(keyword)
+        if btn_xpath is not None :
+            __searchBnt = browser.find_one_by_xpath(btn_xpath)
+            __searchBnt.click()
+            
+    # 
+    def click_by_xpath(self, xpath) :
+        browser = self.browser
+
+        __btn = browser.find_one_by_xpath(xpath)
+        __btn.click()
+
+    def get_data_by_xpath(self, xpath) :
+        Browser = self.browser
+        
+        __str = Browser.find_one_by_xpath(xpath)
+
+        return __str.text
+
+    def move_to_url(self, url) :
+        self.browser.get(url)
+
+    def sleep(self, time) :
+        self.browser.implicitly_wait(time)
 
 class InstagramCrawler (Crawler) : # inherit Crawler class
 # class variables. (all class instance share this variables.)
