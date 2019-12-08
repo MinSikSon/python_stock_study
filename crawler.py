@@ -93,14 +93,7 @@ class InstagramCrawler (Crawler) : # inherit Crawler class
         browser = self.browser
 
         __user_profile = self.get_user_profile(username)
-<<<<<<< Updated upstream
-        print("get_user_posts : %s" % __user_profile)
-
-        if number is None :
-            __number = utils.instagram_int(__user_profile["post_num"])
-=======
         print("get_user_profile : %s" % __user_profile)
->>>>>>> Stashed changes
 
         # # browser.page_down()
 

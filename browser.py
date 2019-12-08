@@ -39,11 +39,7 @@ class Browser :
 
     # ??
     def find_one(self, css_selector, elem=None, waittime=0):
-<<<<<<< Updated upstream
         print("find_one : " + css_selector)
-=======
-        # print("find_one : " + css_selector)
->>>>>>> Stashed changes
         obj = elem or self.driver
 
         if waittime:
