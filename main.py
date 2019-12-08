@@ -73,7 +73,7 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
         # stellajang_official = instagramCrawler.get_user_posts(stellajang_official)
         # print("get_user_posts : %s" % stellajang_official)
 
-        instagramCrawler.login();
+        instagramCrawler.login()
 
         # # etc
         # URL = "https://www.instagram.com/" + args.username

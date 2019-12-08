@@ -42,11 +42,7 @@ class InstagramCrawler (Crawler) : # inherit Crawler class
         if ele_login[2] :
             ele_login[2].click()
 
-<<<<<<< Updated upstream
-    def login(self) :
-=======
     def login(self, username="username", password="password") :
->>>>>>> Stashed changes
         print("[crawler.py] login()")
         browser = self.browser
         # browser = Browser(True)
