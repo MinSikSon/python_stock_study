@@ -29,16 +29,20 @@ class InstagramCrawler (Crawler) : # inherit Crawler class
     URL = "https://www.instagram.com"
 
     def __init__(self, has_screen=False) : # Initializer
-        print("init nothing")
+        print("[crawler.py] __init__()")
         self.browser = Browser(has_screen)
 
     def _dismiss_login_prompt(self) : 
-        ele_login = self.browser.find_one(".Ls00D .Szr5J")
-        if ele_login :
-            ele_login.click()
+        print("[crawler.py] _dissmiss_login_prompt()")
+        # ele_login = self.browser.find_one(".sqdOP.L3NKy.y3zKF")
+        ele_login = self.browser.find(".sqdOP.L3NKy.y3zKF")
+        # print(ele_login)
+        # ele_login = self.browser.find_one(".Ls00D .Szr5J")
+        if ele_login[2] :
+            ele_login[2].click()
 
     def login(self) :
-        print("crawler - login()")
+        print("[crawler.py] login()")
         browser = self.browser
         # browser = Browser(True)
         __url = "%s/accounts/login/" % (InstagramCrawler.URL)
@@ -53,20 +57,20 @@ class InstagramCrawler (Crawler) : # inherit Crawler class
 
     # ??
     def get_user_profile(self, username) :
-        print("crawler - get_user_profile()")
+        print("[crawler.py] get_user_profile()")
         browser = self.browser
         __url = "%s/%s" % (InstagramCrawler.URL, username)
         browser.get(__url)
         __name = browser.find_one(".rhpdm")
         __desc = browser.find_one(".-vDig span")
         __photo = browser.find_one("._fq-tv")
-        __statistics = [ele.text for ele in browser.find(".g47SY")]
+        __statistics = [ele.text for ele in browser.find(".g47SY")] # list comprehension (http://pythonstudy.xyz/python/article/12-컬렉션--List)
         __post_num, __follower_num, __following_num = __statistics
 
         return {
             "name" : __name.text,
             "desc" : __desc.text if __desc else None,
-            "photo_url" : __photo.get_attribute("src"),
+            # "photo_url" : __photo.get_attribute("src"),
             "post_num" : __post_num,
             "follower_num" : __follower_num,
             "following_num" : __following_num
@@ -75,6 +79,8 @@ class InstagramCrawler (Crawler) : # inherit Crawler class
 
     def get_user_posts(self, username, number=None, detail=False) :
         __user_profile = self.get_user_profile(username)
+        print("get_user_posts : %s" % __user_profile)
+
         if number is None :
             __number = utils.instagram_int(__user_profile["post_num"])
 
