@@ -93,9 +93,9 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
             # 6. copy
             print("copy!!")
             path = "%s/README.md" % (forder)
-            write_to_file(path=path, data=__news_name_kor, option='a')
-            write_to_file(path=path, data=__news_author, option='a')
-            write_to_file(path=path, data=__news_kor, option='a')
+            write_to_file(path=path, data="%s / " % __news_name_kor, option='a')
+            write_to_file(path=path, data="%s / " % __news_author, option='a')
+            write_to_file(path=path, data="%s / " % __news_kor, option='a')
             write_to_file(path=path, data="\n", option='a')
 
     elif args.website == "insta" :
