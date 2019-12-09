@@ -84,8 +84,19 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
         forder = "./%s" % args.website
         if os.path.isdir(forder) is False :
             os.mkdir(forder)
+
         path = "%s/%s.txt" % (forder, __news_name_kor)
-        write_to_file(path=path, data=__news_kor, option='w')
+        if os.path.exists(path) is False :
+            # create file
+            write_to_file(path=path, data=__news_kor, option='w')
+
+            # 6. copy
+            print("copy!!")
+            path = "%s/README.md" % (forder)
+            write_to_file(path=path, data=__news_name_kor, option='a')
+            write_to_file(path=path, data=__news_author, option='a')
+            write_to_file(path=path, data=__news_kor, option='a')
+            write_to_file(path=path, data="\n", option='a')
 
     elif args.website == "insta" :
         if args.username is not None :
