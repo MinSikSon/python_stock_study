@@ -27,8 +27,8 @@ class Crawler :
 class GoogleCrawler (Crawler) :
     # 검색어 입력
 
-    def __init__(self) :
-        self.browser = Browser()
+    def __init__(self, has_screen=False) :
+        self.browser = Browser(has_screen)
         self.browser.get("https://www.google.com")
 
     def input_and_click_btn(self, keyword, input_path, btn_xpath=None) :
