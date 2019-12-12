@@ -17,6 +17,7 @@ from file_inout import write_to_file, read_from_file
 from time import sleep
 
 import os
+import datetime
 
 def usage() : # how to use
     # """ means `string`
@@ -47,34 +48,34 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
     print("website : %s" % args.website)
     if args.website == 'tesla' :
         print("[tesla]")
-        googleCrawler = crawler.GoogleCrawler(True)
+        websiteCrawler = crawler.WebsiteCrawler(True)
         # 1. move to tesla page
-        googleCrawler.move_to_url("https://www.tesla.com/ko_KR/blog")
+        websiteCrawler.move_to_url("https://www.tesla.com/ko_KR/blog")
         # 2. copy 새소식
         __뉴스제목_xpath = "/html/body/div[2]/div/div/main/div/div[1]/div/div[1]/section[1]/div/div/div/div/div[1]/div[1]/div/div/h2/a"
-        __news_name = googleCrawler.get_data_by_xpath(__뉴스제목_xpath)
+        __news_name = websiteCrawler.get_data_by_xpath(__뉴스제목_xpath)
         __뉴스작성자_xpath = "/html/body/div[2]/div/div/main/div/div[1]/div/div[1]/section[1]/div/div/div/div/div[1]/div[1]/div/div/div[1]"
-        __news_author = googleCrawler.get_data_by_xpath(__뉴스작성자_xpath)
+        __news_author = websiteCrawler.get_data_by_xpath(__뉴스작성자_xpath)
         __뉴스내용_xpath = "/html/body/div[2]/div/div/main/div/div[1]/div/div[1]/section[1]/div/div/div/div/div[1]/div[1]/div/div/div[2]/div/div/div/p"
-        __news = googleCrawler.get_data_by_xpath(__뉴스내용_xpath)
+        __news = websiteCrawler.get_data_by_xpath(__뉴스내용_xpath)
         print("__news_name : %s" % __news_name)
         print("__news_author : %s" % __news_author)
         print("__news : %s" % __news)
 
         # 3. move to google translate
         __google_translate_url = "https://translate.google.co.kr/?hl=ko#view=home&op=translate&sl=en&tl=ko"
-        googleCrawler.move_to_url(__google_translate_url)
+        websiteCrawler.move_to_url(__google_translate_url)
 
         # 4. paste 새소식 to Google Translate textarea
-        googleCrawler.input_and_click_btn(__news_name, input_path='textarea[id="source"]')
+        websiteCrawler.input_and_click_btn(__news_name, input_path='textarea[id="source"]')
         sleep(1)
         __google_translate_input_xpath = "/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[2]/div"
-        __news_name_kor = googleCrawler.get_data_by_xpath(__google_translate_input_xpath)
+        __news_name_kor = websiteCrawler.get_data_by_xpath(__google_translate_input_xpath)
         
-        googleCrawler.input_and_click_btn(__news, input_path='textarea[id="source"]')
+        websiteCrawler.input_and_click_btn(__news, input_path='textarea[id="source"]')
         sleep(3) # 영문 news 내용을 textarea 에 붙여주는 동안 기다림
         __google_translate_input_xpath = "/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[2]/div"
-        __news_kor = googleCrawler.get_data_by_xpath(__google_translate_input_xpath)
+        __news_kor = websiteCrawler.get_data_by_xpath(__google_translate_input_xpath)
         
         print("__news_name_kor : %s" % __news_name_kor)
         print("__news_author : %s" % __news_author)
@@ -97,6 +98,78 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
             write_to_file(path=path, data="%s / " % __news_author, option='a')
             write_to_file(path=path, data="%s / " % __news_kor, option='a')
             write_to_file(path=path, data="\n", option='a')
+
+    elif args.website == "bbc" :
+        __BBC_URL = "https://www.bbc.com/"
+        __GOOGLE_TRANSLATE_URL = "https://translate.google.co.kr/?hl=ko#view=home&op=translate&sl=en&tl=ko"
+
+        __news_item_count = 6
+        __xpath_news_title = []
+        __xpath_news_type = []
+        for item in range(0, __news_item_count) :
+            __xpath_news_title.append("/html/body/div[7]/div/section[3]/div/ul/li[%s]/div/div[2]/h3/a" % (item))
+            __xpath_news_type.append("/html/body/div[7]/div/section[3]/div/ul/li[%s]/div/div[2]/a"     % (item))
+        # for item in range(1, __news_item_count) :
+        #     print("%s" % __xpath_news_title[item])
+        #     print("%s" % __xpath_news_type[item])
+        
+        # 1. move to BBC website
+        websiteCrawler = crawler.WebsiteCrawler(True)
+        websiteCrawler.move_to_url(__BBC_URL)
+
+        # 2. data crawling
+        __news_title = [""]
+        __news_type = [""]
+        for item in range(1, __news_item_count) :
+            eng_news_title = websiteCrawler.get_data_by_xpath(__xpath_news_title[item])
+            __news_title.append(eng_news_title)
+            eng_news_type = websiteCrawler.get_data_by_xpath(__xpath_news_type[item])
+            __news_type.append(eng_news_type)
+
+        for item in range(1, __news_item_count) :
+            print("%s" % __news_title[item])
+            print("%s" % __news_type[item])
+
+        # 3. move to google translate
+
+        # 4. paste 새소식 to Google Translate textarea
+        __xpath_google_translate_input = "/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[2]/div"
+        __news_title_kor = [""]
+        __news_type_kor = [""]
+        for item in range(1, __news_item_count) :
+            websiteCrawler.move_to_url(__GOOGLE_TRANSLATE_URL)
+            websiteCrawler.input_and_click_btn(__news_title[item], input_path='textarea[id="source"]')
+            sleep(1)
+            __news_title_kor.append(websiteCrawler.get_data_by_xpath(__xpath_google_translate_input))
+            
+            websiteCrawler.move_to_url(__GOOGLE_TRANSLATE_URL)
+            websiteCrawler.input_and_click_btn(__news_type[item], input_path='textarea[id="source"]')
+            sleep(1) # 영문 news 내용을 textarea 에 붙여주는 동안 기다림
+            __news_type_kor.append(websiteCrawler.get_data_by_xpath(__xpath_google_translate_input))
+
+        for item in range(1, __news_item_count) :
+            print("%s" % __news_title_kor[item])
+            print("%s" % __news_type_kor[item])
+
+        # 5. 저장!
+        forder = "./%s" % args.website
+        if os.path.isdir(forder) is False :
+            os.mkdir(forder)
+
+        dt = datetime.datetime.now()
+        txt_file_name = "%s_%s_%s" % (dt.year, dt.month, dt.day)
+        path = "%s/%s.txt" % (forder, txt_file_name)
+        if os.path.exists(path) is False :
+            write_to_file(path=path, data="empty", option='w')
+            # 6. copy
+            print("copy!!")
+            path = "%s/README.md" % (forder)
+            if os.path.exists(path) is False :
+                write_to_file(path=path, data="", option='w')
+            
+            write_to_file(path=path, data=txt_file_name, option='a')
+            for item in range(1, __news_item_count) :
+                write_to_file(path=path, data="[type] %s / [title] %s \n" % (__news_type_kor[item], __news_title_kor[item]), option='a')
 
     elif args.website == "insta" :
         if args.username is not None :
