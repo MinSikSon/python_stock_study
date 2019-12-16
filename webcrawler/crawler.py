@@ -1,9 +1,11 @@
-from browser import Browser
+from webcrawler.browser import Browser
 import secret
 
 import utils
 from exceptions import RetryException
 from tqdm import tqdm
+
+from selenium.webdriver.common.keys import Keys
 
 # fetch.py 는 단순히 가져옴
 # from .fetch import fetch_caption
@@ -26,7 +28,10 @@ class Crawler :
 
 class WebsiteCrawler (Crawler) :
     # 검색어 입력
-
+    # XPATH_GOOGLE_INPUT = "/html/body/div/div[4]/form/div[2]/div[1]/div[1]/div/div[2]/input"
+    GOOGLE_URL = 'https://www.google.com/'
+    XPATH_GOOGLE_INPUT = 'input[title="검색"]'
+    XPATH_GOOGLE_SEARCH_BTN = "/html/body/div/div[4]/form/div[2]/div[1]/div[3]/center/input[1]"
     def __init__(self, has_screen=False) :
         self.browser = Browser(has_screen)
         # self.browser.get("https://www.google.com")
@@ -39,6 +44,9 @@ class WebsiteCrawler (Crawler) :
         if btn_xpath is not None :
             __searchBnt = browser.find_one_by_xpath(btn_xpath)
             __searchBnt.click()
+        else :
+            print('[Keys.ENTER]')
+            __input.send_keys(Keys.ENTER)
             
     # 
     def click_by_xpath(self, xpath) :
@@ -51,8 +59,10 @@ class WebsiteCrawler (Crawler) :
         Browser = self.browser
         
         __str = Browser.find_one_by_xpath(xpath)
-
-        return __str.text
+        if __str is not None :
+            return __str.text
+        else :
+            return None
 
     def move_to_url(self, url) :
         self.browser.get(url)

@@ -17,12 +17,12 @@ class Browser :
 
     def __init__(self, has_screen = False) : # 전혀 모르겠다.
         dir_path = os.path.dirname(os.path.realpath(__file__)) # __file__ means this file's 
-        print("dir_path : " + dir_path)
+        print("[Browser] dir_path : " + dir_path)
         service_args = ["--ignore-ssl-errors=true"]
         chrome_options = Options()
 
         if has_screen is not False :
-            print("has_screen : %s" % has_screen)
+            print("[Browser] has_screen : %s" % has_screen)
             chrome_options.add_argument("--headless") # chrome 창을 띄우지 않는 옵션
         chrome_options.add_argument("--start-maximized")
         chrome_options.add_argument("--no-sandbox")
@@ -39,7 +39,7 @@ class Browser :
 
     # ??
     def find_one(self, css_selector, elem=None, waittime=0):
-        print("find_one : " + css_selector)
+        print("[Browser] find_one : " + css_selector)
         obj = elem or self.driver
 
         if waittime:

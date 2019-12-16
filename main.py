@@ -4,13 +4,13 @@ import sys # http://pythonstudy.xyz/python/article/17-%EB%AA%A8%EB%93%88-Module
 import argparse
 # import json
 
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 
 # import requests # import all & use function with requests.
 # from requests import * # import all function & use function w/o requests.
 from requests import get_html as getHTML # alias
 
-import crawler
+import webcrawler.crawler as crawler
 
 from file_inout import write_to_file, read_from_file
 
