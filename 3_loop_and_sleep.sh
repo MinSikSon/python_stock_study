@@ -6,6 +6,7 @@ while [ 1 ]; do
 count=`expr $count + 1`
 echo "execute count : ${count}"
 ./1_run.sh
+./3_loop_and_sleep.sh
 echo "done.."
 sleep $sec_per_day
 done
