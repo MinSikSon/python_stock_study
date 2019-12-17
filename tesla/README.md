@@ -4,3 +4,10 @@ December 4, 2019 /
 Model X Euro NCAPì—ì„œ 5 ì„±ê¸‰ ì•ˆì „ ë“±ê¸‰ íšë“ Model XëŠ” ë¯¸êµ­ ì „êµ­ ê³ ì†ë„ë¡œ êµí†µ ì•ˆì „êµ­ (National Highway Traffic Safety Administration)ì˜ ëª¨ë“  ì¹´í…Œê³ ë¦¬ ë° í•˜ìœ„ ì¹´í…Œê³ ë¦¬ì—ì„œ 5 ë“±ê¸‰ ì•ˆì „ ë“±ê¸‰ì„ë°›ì€ ìµœì´ˆì´ìž ìœ ì¼í•œ SUVê°€ë˜ì—ˆì„ ë•Œ ì—­ì‚¬ë¥¼ ë‚¨ê²¼ìŠµë‹ˆë‹¤. ì˜¤ëŠ˜, ìš°ë¦¬ëŠ” ìœ ëŸ½ì˜ ì‹ ì°¨ í‰ê°€ í”„ë¡œê·¸ëž¨ (Euro NCAP)ì˜ 5 ì„±ê¸‰ ì•ˆì „ ë“±ê¸‰ì„ ì¶”ê°€í•˜ì—¬ ìžë™ì°¨ì˜ ì•ˆì „ ì§€ì› ê¸°ëŠ¥ê³¼ ì„±ì¸, ì–´ë¦°ì´ë¥¼ ë³´í˜¸í•˜ëŠ” ëŠ¥ë ¥ì„ ì¶”ê°€í•˜ì—¬ ê·¸ ìœ ì‚°ì„ ê¸°êº¼ì´ ë§žì´í•˜ê²Œë˜ì—ˆìŠµë‹ˆë‹¤. ì·¨ì•½í•œ ë„ë¡œ ì‚¬ìš©ìž. / 
 
 
+Model X, Euro NCAP¿¡¼­ 5 ¼º±Þ ¾ÈÀü µî±Þ È¹µæ / 
+The Tesla Team
+December 4, 2019 / 
+Model X, Euro NCAP¿¡¼­ 5 ¼º±Þ ¾ÈÀü µî±Þ È¹µæ
+Model X´Â ¹Ì±¹ ³»¼Å³Î °í¼Óµµ·Î ±³Åë ¾ÈÀü±¹ (National Highway Traffic Safety Administration)ÀÇ ¸ðµç Ä«Å×°í¸® ¹× ÇÏÀ§ Ä«Å×°í¸®¿¡¼­ 5 µî±Þ ¾ÈÀü µî±ÞÀ»¹ÞÀº ÃÖÃÊÀÌÀÚ À¯ÀÏÇÑ SUV°¡µÇ¾úÀ» ¶§ ¿ª»ç¸¦ ¸¸µé¾ú½À´Ï´Ù. ¿À´Ã, ¿ì¸®´Â À¯·´ÀÇ ½ÅÂ÷ Æò°¡ ÇÁ·Î±×·¥ (Euro NCAP)ÀÇ 5 ¼º±Þ ¾ÈÀü µî±ÞÀ» Ãß°¡ÇÏ¿© ÀÚµ¿Â÷ÀÇ ¾ÈÀü Áö¿ø ±â´É°ú ¼ºÀÎ, ¾î¸°ÀÌ¸¦ º¸È£ÇÏ´Â ´É·ÂÀ» Ãß°¡ÇÏ¿© ±× À¯»êÀ» ±â²¨ÀÌ ¸ÂÀÌÇÏ°ÔµÇ¾ú½À´Ï´Ù. Ãë¾àÇÑ µµ·Î »ç¿ëÀÚ. / 
+
+

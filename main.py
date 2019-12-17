@@ -48,7 +48,7 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
     print("website : %s" % args.website)
     if args.website == 'tesla' :
         print("[tesla]")
-        websiteCrawler = crawler.WebsiteCrawler(True)
+        websiteCrawler = crawler.WebsiteCrawler(False)
         # 1. move to tesla page
         websiteCrawler.move_to_url("https://www.tesla.com/ko_KR/blog")
         # 2. copy 새소식

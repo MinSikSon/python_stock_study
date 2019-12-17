@@ -15,7 +15,7 @@ if __name__ == '__main__' :
     
     print('----2. 구매 가능한지 비교 : ** web crawling 필요')
     print('--------------------------------------------------')
-    __crawler = crawler.WebsiteCrawler(True)
+    __crawler = crawler.WebsiteCrawler(False)
     __crawler.move_to_url(__crawler.GOOGLE_URL) # google 로 이동
     __crawler.input_and_click_btn(
         '%s 주식' % __stock_name, 
