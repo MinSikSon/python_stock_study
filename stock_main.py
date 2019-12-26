@@ -1,13 +1,17 @@
 import argparse
 import webcrawler.crawler as crawler
 
+# daily analysis
+def get_stock_data(self) :
+    __xpath = "/html/body/div[7]/div[3]/div[10]/div[1]/div[2]/div/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/g-card-section[1]/div/div[2]/div/div/div[1]/span[1]"
+
 if __name__ == '__main__' :
     print('__main__')
 
     print('----1. input : 자본금, 사려는 주식 이름')
     print('--------------------------------------------------')
     __stock_capital = 1000000 # 100 만원
-    __stock_name = "tesla"
+    __stock_name = "삼성전자"
     __stock_count = 0
     print('1> 자본 : %s' % __stock_capital)
     print('2> 종목 : %s' % __stock_name)
@@ -59,3 +63,13 @@ if __name__ == '__main__' :
         print('--------------------------------------------------')
 
     print('- END -')
+
+    # __xpath = "/html/body/div[7]/div[3]/div[10]/div[1]/div[2]/div/div[2]/div[2]/div/div/div[1]/div/div/div/div"
+    # __input = 'span[class="knowledge-finance-wholepage-chart__hover-card-time"]'
+    # __crawler.input_and_click_btn("오후 3:30",__input)
+    # __input_2 = 'span[class="knowledge-finance-wholepage-chart__hover-card-value"]'
+    # __stock_current_value = __crawler.get_data_by_xpath(__input_2)
+    __crawler.move_to_url("https://finance.naver.com/item/sise.nhn?code=005930")
+    __xpath = "/html/body/table[1]/tbody/tr[3]/td[2]"
+    __stock_current_value = __crawler.get_data_by_xpath(__xpath)
+    print('__stock_current_value : %s' % __stock_current_value)
