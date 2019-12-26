@@ -3,8 +3,8 @@
 * python 환경 변수(내컴퓨터..) 확인한다. 나중에 win32com 설치 시에 경로를 못 잡는 경우는.. "https://belitino.tistory.com/132" 요기 참고해서, regedit 수정이 필요하다.
 
 2. win32com 설치
-* 다운로드 : https://github.com/mhammond/pywin32/releases
-* python version 에 맞춰 줘야 한다.
+* 다운로드 : 
+* python version 에 맞춰 줘야 한다.https://github.com/mhammond/pywin32/releases
 * python 경로도 잘 맞춰줘야 한다.
 * 그래서 win32com 다운 로드 후 설치 시 경로를 인식한다.
 

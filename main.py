@@ -114,7 +114,7 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
         #     print("%s" % __xpath_news_type[item])
         
         # 1. move to BBC website
-        websiteCrawler = crawler.WebsiteCrawler(True)
+        websiteCrawler = crawler.WebsiteCrawler(False)
         websiteCrawler.move_to_url(__BBC_URL)
 
         # 2. data crawling
