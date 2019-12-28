@@ -1,3 +1,15 @@
+# 주식 용어
+* PER : Price Earning Ratio, 주가를 주당 순이익(EPS) 으로 나눈 값. 주가의 수익성 지표로 자주 활용 된다.
+    * 높은 PER : 기업이 영업활동으로 벌어들인 이익에 비해 주가가 고평가 되고 있음을 의미한다.
+    * 낮은 PER : 주가가 상대적으로 저평가되고 있음을 의미한다.
+> 현재의 주가를 과거? 의 주당순이익(EPS) 로 나눈 값인 것에 유의하자.
+
+* PSR : ?
+* PBR : Price Book-value Ratio(주가순자산비율) = 현재 주식 가격 / 주당 순자산
+    * PBR 은 현재 주당 순자산의 몇배로 매매되고 있는지를 보여주는 지표이다.
+    * PBR 을 간단히 설명하면, 얼마나 튼튼하고 안정적인 기업인지를 판단하는 지표라고 생각하면 된다.
+* BPS : Book-value Per Share(주당순자산) = 순자산 / 총 주식수
+
 # 사전 준비
 1. path 확인
 * python 환경 변수(내컴퓨터..) 확인한다. 나중에 win32com 설치 시에 경로를 못 잡는 경우는.. "https://belitino.tistory.com/132" 요기 참고해서, regedit 수정이 필요하다.
@@ -36,4 +48,3 @@
 
 # python 과 COM
 * COM : Compoent Object Model
-
