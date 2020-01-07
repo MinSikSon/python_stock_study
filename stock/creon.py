@@ -11,7 +11,7 @@ class Creon:
 
     def __init__(self):
         self.종목_코드 = 0
-        self.조회_기간_또는_개수 = 1
+        self.조회방법 = 1
         self.요청_개수 = 4
         self.요청할_데이터의_종류 = 5
         self.차트의_종류 = 6
@@ -30,6 +30,10 @@ class Creon:
 
         self.instCpCodeMgr = win32com.client.Dispatch("CpUtil.CpCodeMgr")
 
+        self.instCpUtil = win32com.client.Dispatch("CpTrade.CpTdUtil")
+        self.instCpTd0311 = win32com.client.Dispatch("CpTrade.CpTd0311")
+
+
     def check_connect(self):
         bConnect = self.instCpCybos.IsConnect
         if bConnect == 1:
@@ -44,19 +48,23 @@ class Creon:
     def get_name_from_code(self, code):
         return self.instCpStockCode.CodeToName(code)
 
+    def set_stock_chart_info(self, 종목코드, 조회방법, 요청기간_또는_요청일수, 요청할_데이터_종류=(0, 1, 2, 3, 4, 5, 6, 8, 9, 10), 차트종류=ord('D'), 수정주가반영여부=ord('1')):
+        self.instStockChart.SetInputValue(self.종목_코드, 종목코드)
+        self.instStockChart.SetInputValue(self.조회방법, 조회방법) # 1: 조회 기간, 2: 조회 개수 
+        self.instStockChart.SetInputValue(self.요청_개수, 요청기간_또는_요청일수)
+        # self.instStockChart.SetInputValue(__dataType, 5) # 5: 종가
+        self.instStockChart.SetInputValue(self.요청할_데이터의_종류, 요청할_데이터_종류) # 0: 날짜, 1: 시간, 2: 시가, 3: 고가, 4: 저가, 5: 종가, 6: 전일대비, 8: 거래량, 9: 거래대금, 10: 누적체결매도수량
+        self.instStockChart.SetInputValue(self.차트의_종류, 차트종류) # D : day
+        self.instStockChart.SetInputValue(self.수정_주가_반영_여부, 수정주가반영여부)
+
+
     def get_stock_value_n_days(self, stockCode, days): # https://wikidocs.net/3684
         print('code : %s' % stockCode)
         print('name : %s' % self.get_name_from_code(stockCode))
 
         #(dataType, InputData)
-        self.instStockChart.SetInputValue(self.종목_코드, stockCode)
-        self.instStockChart.SetInputValue(self.조회_기간_또는_개수, ord('2')) # 1: 조회 기간, 2: 조회 개수 
-        self.instStockChart.SetInputValue(self.요청_개수, days)
-        # self.instStockChart.SetInputValue(__dataType, 5) # 5: 종가
-        __dataTypeList = (0, 1, 2, 3, 4, 5, 6, 8, 9, 10)
-        self.instStockChart.SetInputValue(self.요청할_데이터의_종류, __dataTypeList) # 0: 날짜, 1: 시간, 2: 시가, 3: 고가, 4: 저가, 5: 종가, 6: 전일대비, 8: 거래량, 9: 거래대금, 10: 누적체결매도수량
-        self.instStockChart.SetInputValue(self.차트의_종류, ord('D')) # D : day
-        self.instStockChart.SetInputValue(self.수정_주가_반영_여부, ord('1'))
+        __dataTypeList = (0, 1, 2, 3, 4, 5, 6, 8, 9, 10) # 0: 날짜, 1: 시간, 2: 시가, 3: 고가, 4: 저가, 5: 종가, 6: 전일대비, 8: 거래량, 9: 거래대금, 10: 누적체결매도수량
+        self.set_stock_chart_info(stockCode, ord('2'), days, __dataTypeList, ord('D'), ord('1'))
         
         self.instStockChart.BlockRequest() # request data from the server
 
@@ -109,6 +117,7 @@ class Creon:
     
         return __requestReturnValueList
 
+
     def stockVolumeAnalysis(self, stockName, 몇배):
         # print('[stockVolumeAnalysis] 최근 거래량과 60일 평균 거래량 비교')
         # PSR : ?
@@ -124,12 +133,7 @@ class Creon:
         __stockCode = self.get_code_from_name(stockName)
         __days = 60
         __거래량 = 8
-        self.instStockChart.SetInputValue(self.종목_코드, __stockCode)
-        self.instStockChart.SetInputValue(self.조회_기간_또는_개수, ord('2'))
-        self.instStockChart.SetInputValue(self.요청_개수, __days)
-        self.instStockChart.SetInputValue(self.요청할_데이터의_종류, __거래량)
-        self.instStockChart.SetInputValue(self.차트의_종류, ord('D'))
-        self.instStockChart.SetInputValue(self.수정_주가_반영_여부, ord('1'))
+        self.set_stock_chart_info(__stockCode, ord('2'), __days, __거래량,  ord('D'), ord('1'))
 
         # server 에 요청
         self.instStockChart.BlockRequest()
@@ -183,21 +187,60 @@ class Creon:
         return targetCodeList
 
 
+    # 거래 관련부 : init -> setinputvalue -> blockrequest
+    def tradeInit(self):
+        ret = self.instCpUtil.TradeInit()
+        if ret == 0:
+            print('[tradeInit] 성공')
+        elif ret == -1:
+            print('[tradeInit] 오류')
+        elif ret == 1:
+            print('[tradeInit] OTP/보안카드 키 입력 잘못 됨')
+        elif ret == 3:
+            print('[tradeInit] 취소')
+        else:
+            print('[tradeInit] ??')
+        return ret
+
+    def 주식_주문(self, stockName):
+        __필드__주문_종류_코드 = 0
+        __매수 = 1
+        __매도 = 2
+        __필드__계좌_번호 = 1
+        __내_계좌_번호 = self.instCpUtil.AccountNumber[0]
+        __필드__종목_코드 = 2
+        __필드__주문_수량 = 3
+        __주문_수량 = 10
+        __필드__주문_단가 = 5
+        __주문_단가 = 55000
+        self.instCpTd0311.SetInputValue(__필드__주문_종류_코드, __매수)
+        self.instCpTd0311.SetInputValue(__필드__계좌_번호, __내_계좌_번호)
+
+        stockCode = self.get_code_from_name(stockName)
+        self.instCpTd0311.SetInputValue(__필드__종목_코드, stockCode)
+
+        self.instCpTd0311.SetInputValue(__필드__주문_수량, __주문_수량)
+
+        self.instCpTd0311.SetInputValue(__필드__주문_단가, __주문_단가)
+
+        # 요청
+        self.instCpTd0311.BlockRequest()
+
 if __name__ == '__main__':
     stCreon = Creon()
     bConnect = stCreon.check_connect()
 
     if bConnect == TRUE :
-        # __target = '삼성전자'
-        # code = stCreon.get_code_from_name(__target)
-        # print("%s code : %s" % (__target, code))
+        __target = '삼성전자'
+        code = stCreon.get_code_from_name(__target)
+        print("%s code : %s" % (__target, code))
 
-        # name = stCreon.get_name_from_code(code)
-        # print("%s name : %s" % (__target, name))
+        name = stCreon.get_name_from_code(code)
+        print("%s name : %s" % (__target, name))
 
-        # stCreon.get_stock_value_n_days(code, 15)
+        stCreon.get_stock_value_n_days(code, 15)
 
-        # stCreon.GetPER(__target)
+        stCreon.GetPER(__target)
 
         
 
@@ -246,32 +289,38 @@ if __name__ == '__main__':
             codeListLen = len(__targetList)
 
         몇배 = 1.5
-        buyList = []
+        # buyList = []
         # for i in range(codeListLen):
-        #     if stCreon.stockVolumeAnalysis(__targetList[i], 몇배) == 1:
-        #         buyList.append(__targetList[i])
-            # time.sleep(1)
+        #     # if stCreon.stockVolumeAnalysis(__targetList[i], 몇배) == 1:
+        #     stCreon.stockVolumeAnalysis(__targetList[i], 몇배)
 
-        stCreon.업종_별_코드_리스트()
+        #         # buyList.append(__targetList[i])
+        #     time.sleep(1)
 
-        음식료품_코드_리스트 = stCreon.업종_내_종목_코드_리스트(stCreon.종목코드_음식료품)
+        # stCreon.업종_별_코드_리스트()
 
-        sumPER = 0
-        sumCount = 0
-        for stockCode in 음식료품_코드_리스트:
-            name = stCreon.get_name_from_code(stockCode)
-            if stCreon.stockVolumeAnalysis(name, 몇배) == 1:
-                buyList.append(name)
+        # 음식료품_코드_리스트 = stCreon.업종_내_종목_코드_리스트(stCreon.종목코드_음식료품)
+
+        # sumPER = 0
+        # sumCount = 0
+        # for stockCode in 음식료품_코드_리스트:
+        #     name = stCreon.get_name_from_code(stockCode)
+        #     if stCreon.stockVolumeAnalysis(name, 몇배) == 1:
+        #         buyList.append(name)
                 
-            PER = stCreon.GetPER(name)[0]
-            if PER > 0:
-                sumPER += PER
-                sumCount += 1
-            # time.sleep(1)
+        #     PER = stCreon.GetPER(name)[0]
+        #     if PER > 0:
+        #         sumPER += PER
+        #         sumCount += 1
+        #     # time.sleep(1)
         
-        print('sumPER %s' % (sumPER))
-        print('sumCount %s' % (sumCount))
-        print('avg PER = %s' % (round((sumPER/sumCount), 4)))
+        # print('sumPER %s' % (sumPER))
+        # print('sumCount %s' % (sumCount))
+        # print('avg PER = %s' % (round((sumPER/sumCount), 4)))
 
 
+        # 주식 거래 관련
+        # print(stCreon.tradeInit()) 
+
+        
 
