@@ -30,9 +30,14 @@ class Creon:
 
         self.instCpCodeMgr = win32com.client.Dispatch("CpUtil.CpCodeMgr")
 
-        self.instCpUtil = win32com.client.Dispatch("CpTrade.CpTdUtil")
+        self.instCpTdUtil = win32com.client.Dispatch("CpTrade.CpTdUtil")
         self.instCpTd0311 = win32com.client.Dispatch("CpTrade.CpTd0311")
 
+        # 매수/매도 확인
+        # self.instCpConclusion = win32com.client.Disptch("CpConclusion")
+
+        # 주식 잔고 조회
+        self.instCpTd6033 = win32com.client.Dispatch("CpTrade.CpTd6033")
 
     def check_connect(self):
         bConnect = self.instCpCybos.IsConnect
@@ -58,9 +63,10 @@ class Creon:
         self.instStockChart.SetInputValue(self.수정_주가_반영_여부, 수정주가반영여부)
 
 
-    def get_stock_value_n_days(self, stockCode, days): # https://wikidocs.net/3684
-        print('code : %s' % stockCode)
-        print('name : %s' % self.get_name_from_code(stockCode))
+    def get_stock_value_n_days(self, stockCode, days, bPrint=False): # https://wikidocs.net/3684
+        if bPrint == True:
+            print('code : %s' % stockCode)
+            print('name : %s' % self.get_name_from_code(stockCode))
 
         #(dataType, InputData)
         __dataTypeList = (0, 1, 2, 3, 4, 5, 6, 8, 9, 10) # 0: 날짜, 1: 시간, 2: 시가, 3: 고가, 4: 저가, 5: 종가, 6: 전일대비, 8: 거래량, 9: 거래대금, 10: 누적체결매도수량
@@ -69,7 +75,8 @@ class Creon:
         self.instStockChart.BlockRequest() # request data from the server
 
         __numData = self.instStockChart.GetHeaderValue(3) # response. receive data from the server
-        print('numData : %s' % __numData)
+        if bPrint == True:
+            print('numData : %s' % __numData)
 
         # __dateTime = datetime.datetime.now()
         # __weekday = __dateTime.weekday()
@@ -77,9 +84,11 @@ class Creon:
             __stockValue = []
             for j in range(len(__dataTypeList)):
                 __stockValue.append(self.instStockChart.GetDataValue(j, i))
-            print('%s' % __stockValue)
+            if bPrint == True:
+                print('%s' % __stockValue)
 
             # print('%s/%s(%s) %s %s' % (__dateTime.month, __dateTime.day - i, __weekday - i, __stockValue, __stockValue_2))
+        return __stockValue
 
     # 현재의 주가를 과거? 의 주당순이익(EPS) 로 나눈 값인 것에 유의하자.
     def GetPER(self, stockName): # PER : Price Earning Ratio, 주가를 주당 순이익(EPS) 으로 나눈 값. 주가의 수익성 지표로 자주 활용 된다.
@@ -189,7 +198,7 @@ class Creon:
 
     # 거래 관련부 : init -> setinputvalue -> blockrequest
     def tradeInit(self):
-        ret = self.instCpUtil.TradeInit()
+        ret = self.instCpTdUtil.TradeInit()
         if ret == 0:
             print('[tradeInit] 성공')
         elif ret == -1:
@@ -207,7 +216,7 @@ class Creon:
         __매수 = 1
         __매도 = 2
         __필드__계좌_번호 = 1
-        __내_계좌_번호 = self.instCpUtil.AccountNumber[0]
+        __내_계좌_번호 = self.instCpTdUtil.AccountNumber[0]
         __필드__종목_코드 = 2
         __필드__주문_수량 = 3
         __주문_수량 = 10
@@ -225,102 +234,63 @@ class Creon:
 
         # 요청
         self.instCpTd0311.BlockRequest()
-
-if __name__ == '__main__':
-    stCreon = Creon()
-    bConnect = stCreon.check_connect()
-
-    if bConnect == TRUE :
-        __target = '삼성전자'
-        code = stCreon.get_code_from_name(__target)
-        print("%s code : %s" % (__target, code))
-
-        name = stCreon.get_name_from_code(code)
-        print("%s name : %s" % (__target, name))
-
-        stCreon.get_stock_value_n_days(code, 15)
-
-        stCreon.GetPER(__target)
-
         
-
-        # for i in range(len(__targetList)):
-        #     print('[%s. %s]' % (i, __targetList[i]))
-        #     stCreon.GetPER(__targetList[i])
-
-        # print('이전 60일 대비 오늘 거래량 비율')
-        bViewAll = 0
-        if bViewAll == 1:
-            codeList = stCreon.getStockListByMarket()
-            codeListLen = len(codeList)
-            print('codeListLen : %s' % (codeListLen))
-            __targetList = []
-            for i in range(codeListLen):
-                name = stCreon.get_name_from_code(codeList[i])
-                __targetList.append(name)
-
-        else:
-            __targetList = ('삼성전자',
-                        'SK하이닉스',
-                        'CJ',
-                        '카카오',
-                        'JYP Ent.',
-                        '삼성바이오로직스',
-                        '셀트리온',
-                        'KCC',
-                        '현대제철',
-                        '엔씨소프트',
-                        '신세계',
-                        '고려제약',
-                        '케이맥',
-                        '제주반도체',
-                        '에프엔씨엔터',
-                        '와이지엔터테인먼트',
-                        '메디톡스',
-                        '현대차',
-                        '큐브엔터',
-                        '삼성물산',
-                        '대한항공',
-                        '아시아나항공',
-                        '한국콜마',
-                        '인터로조',
-                        '폴루스바이오팜'
-                        )
-            codeListLen = len(__targetList)
-
-        몇배 = 1.5
-        # buyList = []
-        # for i in range(codeListLen):
-        #     # if stCreon.stockVolumeAnalysis(__targetList[i], 몇배) == 1:
-        #     stCreon.stockVolumeAnalysis(__targetList[i], 몇배)
-
-        #         # buyList.append(__targetList[i])
-        #     time.sleep(1)
-
-        # stCreon.업종_별_코드_리스트()
-
-        # 음식료품_코드_리스트 = stCreon.업종_내_종목_코드_리스트(stCreon.종목코드_음식료품)
-
-        # sumPER = 0
-        # sumCount = 0
-        # for stockCode in 음식료품_코드_리스트:
-        #     name = stCreon.get_name_from_code(stockCode)
-        #     if stCreon.stockVolumeAnalysis(name, 몇배) == 1:
-        #         buyList.append(name)
-                
-        #     PER = stCreon.GetPER(name)[0]
-        #     if PER > 0:
-        #         sumPER += PER
-        #         sumCount += 1
-        #     # time.sleep(1)
+    def 주식_잔고_조회(self):
+        __계좌번호 = self.instCpTdUtil.AccountNumber[0]
+        __주식상품_구분 = self.instCpTdUtil.GoodsList(__계좌번호, 1) # ?
+        print('계좌번호 : %s, 주식상품_구분 : %s' % (__계좌번호, __주식상품_구분))
         
-        # print('sumPER %s' % (sumPER))
-        # print('sumCount %s' % (sumCount))
-        # print('avg PER = %s' % (round((sumPER/sumCount), 4)))
-
-
-        # 주식 거래 관련
-        # print(stCreon.tradeInit()) 
-
         
+        self.instCpTd6033.SetInputValue(0, __계좌번호)  # 계좌번호
+        self.instCpTd6033.SetInputValue(1, __주식상품_구분[0])  # 상품구분 - 주식 상품 중 첫번째
+        self.instCpTd6033.SetInputValue(2, 50)  # 요청 건수(최대 50)
+        self.dicflag1 = {ord(' '): '현금',
+                         ord('Y'): '융자',
+                         ord('D'): '대주',
+                         ord('B'): '담보',
+                         ord('M'): '매입담보',
+                         ord('P'): '플러스론',
+                         ord('I'): '자기융자',
+                         }
 
+        self.requestJango()
+    
+
+    def requestJango(self, caller=0):
+        while True:
+            self.instCpTd6033.BlockRequest()
+            # 통신 및 통신 에러 처리
+            rqStatus = self.instCpTd6033.GetDibStatus()
+            rqRet = self.instCpTd6033.GetDibMsg1()
+            print("통신상태", rqStatus, rqRet)
+            if rqStatus != 0:
+                return False
+ 
+            cnt = self.instCpTd6033.GetHeaderValue(7)
+            print(cnt)
+ 
+ 
+            잔고 = 0
+            for i in range(cnt):
+                item = {}
+                code = self.instCpTd6033.GetDataValue(12, i)  # 종목코드
+                item['종목코드'] = code
+                item['종목명'] = self.instCpTd6033.GetDataValue(0, i)  # 종목명
+                item['잔고수량'] = self.instCpTd6033.GetDataValue(7, i)  # 체결잔고수량
+
+                item['매도가능'] = self.instCpTd6033.GetDataValue(15, i)
+                item['장부가'] = self.instCpTd6033.GetDataValue(17, i)  # 체결장부단가
+                item['매입금액'] = item['장부가'] * item['잔고수량']
+                __n_days_list = self.get_stock_value_n_days(code, 1) # parameter 가 1이 아닐 경우, 아래 code 수정 필요
+                item['현재가'] = __n_days_list[2] # 시가
+                item['대비'] = 0
+                item['거래량'] = 0
+ 
+                합계 = item['잔고수량'] * item['현재가']
+                print('%s : 잔고수량(%s) * 현재가(%s) = (%s) (매도가능? %s)' % (item['종목명'], item['잔고수량'], item['현재가'], 합계, item['매도가능']))
+                잔고 = 잔고 + 합계
+
+            print('잔고 : %s' % (잔고))
+            if (self.instCpTd6033.Continue == False):
+                break
+        return True
