@@ -1,6 +1,5 @@
-
 def write_to_file(path, data, option='w') :
-    f = open(path, option)
+    f = open(file=path, mode=option, encoding="utf-8")
     f.write("%s\n" % data)
     f.close()
 

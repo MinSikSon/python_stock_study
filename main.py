@@ -19,6 +19,7 @@ from time import sleep
 import os
 import datetime
 
+
 def usage() : # how to use
     # """ means `string`
     return """
@@ -160,16 +161,22 @@ if __name__ == '__main__' : # run this script in the interpreter. http://pythons
         txt_file_name = "%s_%s_%s" % (dt.year, dt.month, dt.day)
         path = "%s/%s.txt" % (forder, txt_file_name)
         if os.path.exists(path) is False :
-            write_to_file(path=path, data="empty", option='w')
+            write_to_file(path=path, data="", option='w')
             # 6. copy
             print("copy!!")
-            path = "%s/README.md" % (forder)
-            if os.path.exists(path) is False :
-                write_to_file(path=path, data="", option='w')
+            readme_path = "%s/README.md" % (forder)
+            if os.path.exists(readme_path) is False :
+                write_to_file(path=readme_path, data="", option='w')
             
-            write_to_file(path=path, data=txt_file_name, option='a')
+            write_to_file(path=readme_path, data=txt_file_name, option='a')
+            __all_line = ''
             for item in range(1, __news_item_count) :
-                write_to_file(path=path, data="[type] %s / [title] %s \n" % (__news_type_kor[item], __news_title_kor[item]), option='a')
+                __line = "[type] %s / [title] %s \n" % (__news_type_kor[item], __news_title_kor[item])
+                write_to_file(path=readme_path, data=__line, option='a')
+                __all_line = __all_line + __line + "\n"
+
+            write_to_file(path=path, data=__all_line, option='a')
+
 
     elif args.website == "insta" :
         if args.username is not None :
