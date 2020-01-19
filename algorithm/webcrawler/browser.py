@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 
 from selenium.webdriver.common.keys import Keys
 
-from utils import randmized_sleep
+from algorithm.utils import randmized_sleep
 
 class Browser :
 
