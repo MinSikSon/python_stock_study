@@ -8,11 +8,11 @@ import argparse
 
 # import requests # import all & use function with requests.
 # from requests import * # import all function & use function w/o requests.
-from requests import get_html as getHTML # alias
+from algorithm.requests import get_html as getHTML # alias
 
-import webcrawler.crawler as crawler
+import algorithm.webcrawler.crawler as crawler
 
-from file_inout import write_to_file, read_from_file
+from algorithm.file_inout import write_to_file, read_from_file
 
 from time import sleep
 

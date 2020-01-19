@@ -20,11 +20,12 @@ class Connection:
 
     def check_connect(self):
         bConnect = self.instCpCybos.IsConnect
-        if self.logging == True:
-            if bConnect == 1:
+        if bConnect == 1:
+            if self.logging == True:
                 print("[check_connect] connect! (ret : %s)" % bConnect)
-            else :
-                print("[check_connect] fail.. (ret : %s)" % bConnect)
+        else :
+            print("[check_connect] fail.. (ret : %s)" % bConnect)
+            
         return bConnect
 
 class Utils:
@@ -243,7 +244,7 @@ class StockInfo:
 
         return ret_value
 
-    def stockVolumeAnalysis(self, stockName, 몇배):
+    def stockVolumeAnalysis(self, stockName, 몇배, days=60):
         # print('[stockVolumeAnalysis] 최근 거래량과 60일 평균 거래량 비교')
         # PSR : ?
         # PBR : Price Book-value Ratio(주가순자산비율) = 현재 주식 가격 / 주당 순자산
@@ -256,9 +257,8 @@ class StockInfo:
         # 1) 대량 거래(거래량 1,000% 이상 급증) 종목
         # 2) 대량 거래 시점에 PBR 이 4보다 작아야 함
         __stockCode = self.stUtils.get_code_from_name(stockName)
-        __days = 60
         __거래량 = 8
-        self.stUtils.set_stock_chart_info(__stockCode, ord('2'), __days, __거래량,  ord('D'), ord('1'))
+        self.stUtils.set_stock_chart_info(__stockCode, ord('2'), days, __거래량,  ord('D'), ord('1'))
 
         # server 에 요청
         self.stUtils.instStockChart.BlockRequest()
@@ -291,15 +291,17 @@ class StockInfo:
             #print('(거래량 %s 배) %s 은(는) 일반 주.. ' % (round((volumes[0] / avgVolume), 3), stockName))
 
     def getStockListByMarket(self):
-        codeList = self.instCpCodeMgr.getStockListByMarket(1)
+        CPC_MARKET_KOSP = 1
+        codeList = self.instCpCodeMgr.getStockListByMarket(CPC_MARKET_KOSP)
         return codeList
 
-    def 업종_별_코드_리스트(self):
+    def 업종_별_코드_리스트(self, bPrint=False):
         industryCodeList = self.instCpCodeMgr.GetIndustryList()
         
         # industry name 출력
-        for industryCode in industryCodeList:
-            print("%s - %s" % (industryCode, self.instCpCodeMgr.GetIndustryName(industryCode)))
+        if bPrint == True:
+            for industryCode in industryCodeList:
+                print("%s - %s" % (industryCode, self.instCpCodeMgr.GetIndustryName(industryCode)))
 
         return industryCodeList
 

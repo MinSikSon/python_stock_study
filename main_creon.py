@@ -1,4 +1,6 @@
 from stock import creon
+from time import sleep
+
 
 TRUE = 1
 FALSE = 0
@@ -6,26 +8,13 @@ FALSE = 0
 # global variables
 
 if __name__ == '__main__':
-    종목명 = '삼성전자'
     bViewAll = FALSE
 
-    if creon.Connection(logging=True).check_connect() == TRUE :
+    if creon.Connection(logging=False).check_connect() == TRUE :
         stUtils = creon.Utils()
-        종목코드 = stUtils.get_code_from_name(종목명)
-        print("%s 종목코드 : %s, 종목명 : %s" % (종목명, 종목코드, 종목명))
-
-        print("[get_stock_value_n_days]")
-        stUtils.get_stock_value_n_days(종목코드, days=1, bPrint=True)
 
         stStockInfo = creon.StockInfo()
 
-        stStockInfo.GetInfo(종목명, creon.StockInfo.PER)
-        
-        # for i in range(len(종목리스트)):
-        #     print('[%s. %s]' % (i, 종목리스트[i]))
-        #     stStockInfo.GetPER(종목리스트[i])
-
-        # print('이전 60일 대비 오늘 거래량 비율')
         if bViewAll == 1:
             codeList = stStockInfo.getStockListByMarket()
             codeListLen = len(codeList)
@@ -64,14 +53,17 @@ if __name__ == '__main__':
                         )
             codeListLen = len(종목리스트)
 
+# 알고리즘?
+        # print('거래 기간 대비 오늘 거래량 상승폭')
         몇배 = 1.5
-        # buyList = []
-        # for i in range(codeListLen):
-        #     # if stStockInfo.stockVolumeAnalysis(종목리스트[i], 몇배) == 1:
-        #     stStockInfo.stockVolumeAnalysis(종목리스트[i], 몇배)
+        __days = 10
+        buyList = []
+        for i in range(codeListLen):
+            if stStockInfo.stockVolumeAnalysis(종목리스트[i], 몇배, days=__days) == 1:
+                buyList.append(종목리스트[i])
+        print('buyList : %s' % (buyList))
 
-        #         # buyList.append(종목리스트[i])
-        #     time.sleep(1)
+        exit()
 
         # stStockInfo.업종_별_코드_리스트()
 
@@ -94,7 +86,7 @@ if __name__ == '__main__':
         # print('sumCount %s' % (sumCount))
         # print('avg PER = %s' % (round((sumPER/sumCount), 4)))
 
-        # 종목리스트 관련
+# 종목리스트 관련
         request_type_list = (creon.StockInfo.현재가, creon.StockInfo.VOLUME, creon.StockInfo.거래대금, creon.StockInfo.PER, creon.StockInfo.BPS, creon.StockInfo.총상장주식수)
         for i in range(codeListLen):
             request_result_list = stStockInfo.GetInfo(종목리스트[i], requestType=request_type_list)
@@ -108,7 +100,7 @@ if __name__ == '__main__':
                 format(request_result_list[5], ','),
                 종목리스트[i]))
 
-        # 주식 잔고 및 거래 관련
+# 주식 잔고 및 거래 관련
         stTrading = creon.Trading(logging=True)
         잔고 = ''
         if stTrading.trade_init() == 0: # 0 : 성공
