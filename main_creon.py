@@ -1,4 +1,4 @@
-import stock.creon
+from stock import creon
 
 TRUE = 1
 FALSE = 0
@@ -8,7 +8,7 @@ FALSE = 0
 bViewAll = FALSE
 
 if __name__ == '__main__':
-    stCreon = stock.creon.Creon()
+    stCreon = creon.Creon()
     bConnect = stCreon.check_connect()
 
     if bConnect == TRUE :

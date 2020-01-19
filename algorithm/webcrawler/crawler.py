@@ -1,8 +1,8 @@
-from webcrawler.browser import Browser
-import secret
+from algorithm.webcrawler.browser import Browser
+# import secret
 
-import utils
-from exceptions import RetryException
+import algorithm.utils
+# from exceptions import RetryException
 from tqdm import tqdm
 
 from selenium.webdriver.common.keys import Keys
@@ -143,7 +143,7 @@ class InstagramCrawler (Crawler) : # inherit Crawler class
         # # browser.page_down()
 
         if number is None :
-            __number = utils.instagram_int(__user_profile["post_num"])
+            __number = algorithm.utils.instagram_int(__user_profile["post_num"])
         else :
             __number = number + 1
         __post = browser.find_one("._9AhH0")

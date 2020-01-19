@@ -86,3 +86,14 @@
 
 [type] 아이디어 / [title] 내성 자의 깊고 조용한 힘 
 
+2020_1_19
+[type] 영국 / [title] 해리와 메건, 왕실 의무와 HRH 타이틀 떨어 뜨리기 
+
+[type] 혼합 무술 / [title] UFC 246 : Holm이 Pennington을 꺾은 후 McGregor v Cerrone-라디오 및 텍스트 
+
+[type] 그리워 했어? / [title] 국가를 만든 난파선 
+
+[type] 톱 기어 / [title] 런던의 전기 택시가 일본에서 판매됩니다 
+
+[type] BBC 쓰리 / [title] '집을 사다? 내가 왜 그것을 못해? 
+
