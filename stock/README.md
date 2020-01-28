@@ -53,3 +53,54 @@
 * 시스템 드레이딩 신청 해야한다
 * 1. CYBOS 5 실행 시켜서 검색 창에 1846 입력 (시스템 트레이딩 이용신청) // CREON 은 거래 프로그램 화면?이 안뜬다
 * 2. 실행 아이콘? 우클릭 하여 '주문 오브젝트 사용 동의' 클릭 하여 동의 신청? 해야한다.
+
+# 참고 사이트
+* http://cybosplus.github.io/
+* 
+
+# CybosPlus Communication
+> 출처 : Creon Plus > 도움말 > CybosPlus Communication 검색
+* 대신증권 통신 방식은 Request/Reply (RQ/RP) 와 Subscribe/Publish(SB/PB) 방식으로 나뉨
+    * CybosPlus 의 각 통신 모듈은 이 두 가지 통신 모델 중 한 가지만 지원함
+
+### 1. RQ/RP 와 SB/PB 방식 비교 (비동기식 asynchronous)
+* input data 를 채워서 통신을 요청 (RQ 또는 SB) 하면 함수가 바로 반환 됨
+    * 요청 날리는 함수가 BlockRequest 함수 인 듯?
+* RQ/RP : 현 시점의 data 1회 통신 요청
+    * [RQ]
+    * 1. input 값 설정 (obj.SetInputValue)
+    * 2. 통신을 요청 (obj.Request)
+    * [RP]
+    * 3. 통신 수신 이벤트 1회 발생 (obj.received)
+    * 4. data 를 얻는다 (obj.GetHeaderValue, obj.GetDataValue ?)
+* SB/PB : 실 시간 data 수신 요청
+    * [SB]
+    * 1. input 값 설정 (obj.SetInputValue)
+    * 2. 통신을 요청 (obj.Subscribe)
+    * [PB]
+    * 3. data(현재가) 가 변경 될 때마다 event 수시 발생 (obj.received)
+    * 4. data 를 얻는다 (obj.GetHeaderValue, obj.GetDataValue ?)
+
+### 2. SB/PB 방식 (동기식 synchronous)
+* input data 를 채워 넣고 BlockRequest 함수를 호출하면, 서버로 부터 응답이 완료 될 때까지 대기상태를 유지함.
+* 데이터를 정상적으로 수신한 후에 함수 리턴 됨.
+    * 30 초 동안 서버로부터 요청한 data 를 수신하지 못하면 time out 처리 됨.
+* BlockRequest 함수의 리턴 값으로 통신 결과 상태를 확인할 수 있다.
+* [RQ]
+* 1. input 값 설정 (obj.SetInputValue)
+* 2. 통신을 요청 (obj.BlockRequest)
+* [RP]
+* 3. data 를 얻는다. (obj.GetHeaderValue, obj.GetDataValue ?)
+
+### 3. RQ/RP 의 연속 data 통신
+* data 수신 시에는 효율성을 고려해, 적정 size 가 있음.
+* 모든 data 를 한 번의 요청으로 얻는 것이 아니라, 여러 번의 요청으로 얻을 수 있음.
+* 각 object 의 공통 속성 인 Continue 가 True 인 경우, 더 받을 data 가 있다는 것임.
+    * Continue 속성을 check 해, True 일 경우, 이 상태에서 통신을 요청(BlockRequest) 하면 연속 data 를 얻을 수 있음.
+* [RQ]
+* 1. input 값 설정 (obj.SetInputValue)
+* 2. 통신을 요청 (obj.BlockRequest)
+* [RP]
+* 3. data 를 얻는다 (obj.GetHeaderValue, obj.GetDataValue)
+* 4. 연속 data 유무 판단 (obj.Continue 가 True 일 경우, 위 2. 3. 을 반복)
+
