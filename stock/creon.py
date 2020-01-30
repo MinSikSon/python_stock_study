@@ -1,11 +1,10 @@
-import ctypes
 import win32com.client
 import pythoncom
 
 import datetime #https://datascienceschool.net/view-notebook/465066ac92ef4da3b0aba32f76d9750a/
 import time
-from time import sleep
 
+import stock.utils as utils
 
 TRUE = 1
 FALSE = 0
@@ -17,97 +16,11 @@ FALSE = 0
 # 5. 결과 확인 (== 조회?)
 # (6. 그래프)
 
-class Connection:
-    def __init__(self, logging=False):
-        self.instCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
-        self.logging = logging
-
-    def check_connect(self):
-        if ctypes.windll.shell32.IsUserAnAdmin():
-            if self.logging == True:
-                print("[check_connect] 정상: 관리자 권한으로 실행된 프로세스")
-        else:
-            print("[check_connect] 오류: 관리자 권한으로 실행하세요")
-        bConnect = self.instCpCybos.IsConnect
-        if bConnect == 1:
-            if self.logging == True:
-                print("[check_connect] connect! (ret : %s)" % bConnect)
-        else :
-            print("[check_connect] fail.. (ret : %s)" % bConnect)
-            
-        return bConnect
-
-class Utils:
-    def __init__(self):
-        self.종목_코드 = 0
-        self.조회방법 = 1
-        self.요청_개수 = 4
-        self.요청할_데이터의_종류 = 5
-        self.차트의_종류 = 6
-        self.수정_주가_반영_여부 = 9
-
-        self.instCpStockCode = win32com.client.Dispatch("CpUtil.CpStockCode")
-
-        self.instStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
-    
-    def get_code_from_name(self, name):
-        return self.instCpStockCode.NameToCode(name)
-
-    def get_name_from_code(self, code):
-        return self.instCpStockCode.CodeToName(code)
-
-    def set_stock_chart_info(self, 종목코드, 조회방법, 요청기간_또는_요청일수, 요청할_데이터_종류=(0, 1, 2, 3, 4, 5, 6, 8, 9, 10), 차트종류=ord('D'), 수정주가반영여부=ord('1')):
-        self.instStockChart.SetInputValue(self.종목_코드, 종목코드)
-        self.instStockChart.SetInputValue(self.조회방법, 조회방법) # 1: 조회 기간, 2: 조회 개수 
-        self.instStockChart.SetInputValue(self.요청_개수, 요청기간_또는_요청일수)
-        # self.instStockChart.SetInputValue(__dataType, 5) # 5: 종가
-        self.instStockChart.SetInputValue(self.요청할_데이터의_종류, 요청할_데이터_종류) # 0: 날짜, 1: 시간, 2: 시가, 3: 고가, 4: 저가, 5: 종가, 6: 전일대비, 8: 거래량, 9: 거래대금, 10: 누적체결매도수량
-        self.instStockChart.SetInputValue(self.차트의_종류, 차트종류) # D : day
-        self.instStockChart.SetInputValue(self.수정_주가_반영_여부, 수정주가반영여부)
-
-    def get_stock_value_n_days(self, stockCode, days, bPrint=False): # https://wikidocs.net/3684
-        if bPrint == True:
-            print('code : %s, name : %s' % (stockCode, self.get_name_from_code(stockCode)))
-
-        #(dataType, InputData)
-        __dataTypeList = (0, 1, 2, 3, 4, 5, 6, 8, 9, 10) # 0: 날짜, 1: 시간, 2: 시가, 3: 고가, 4: 저가, 5: 종가, 6: 전일대비, 8: 거래량, 9: 거래대금, 10: 누적체결매도수량
-        self.set_stock_chart_info(stockCode, ord('2'), days, __dataTypeList, ord('D'), ord('1'))
-        
-        self.instStockChart.BlockRequest() # request data from the server
-
-        __numData = self.instStockChart.GetHeaderValue(3) # response. receive data from the server
-        if bPrint == True:
-            print('numData : %s' % __numData)
-
-        # __dateTime = datetime.datetime.now()
-        # __weekday = __dateTime.weekday()
-        for i in range(__numData):
-            __stockValue = []
-            for j in range(len(__dataTypeList)):
-                __stockValue.append(self.instStockChart.GetDataValue(j, i))
-            if bPrint == True:
-                print('%s' % __stockValue)
-
-            # print('%s/%s(%s) %s %s' % (__dateTime.month, __dateTime.day - i, __weekday - i, __stockValue, __stockValue_2))
-        return __stockValue
-
-    def waiting(self, time, bPrint=False):
-        cnt = 0
-        while True:
-            ret = pythoncom.PumpWaitingMessages() # ?
-            cnt = cnt + 1
-            sleep(1)
-            if bPrint == True:
-                print(cnt, ret)
-            if cnt > time:
-                break
-
-
 class Trading:
     def __init__(self, logging=False):
         self.logging = logging
 
-        self.stUtils = Utils()
+        self.stUtils = utils.Utils()
 
         self.instCpTdUtil = win32com.client.Dispatch("CpTrade.CpTdUtil")
         self.instCpTd0311 = win32com.client.Dispatch("CpTrade.CpTd0311")
@@ -236,113 +149,12 @@ class Trading:
                 break
         return ret_item_list
 
-
-######################################################################
-class CpEvent:
-    def set_params(self, client, name, caller):
-        self.client = client
-        self.name = name
-        self.caller = caller
-
-    def OnReceived(self):
-        if self.name == 'stockcur':
-            print('stock_code:', self.client.GetHeaderValue(0),
-            'stock_name:', self.client.GetHeaderValue(1),
-            '매도호가:', self.client.GetHeaderValue(7),
-            '매수호가:', self.client.GetHeaderValue(8),
-            '누적거래량:', self.client.GetHeaderValue(9),
-            '현재가:', self.client.GetHeaderValue(13),
-            )
-            
-            # self.caller.test_result()
-
-        elif self.name == 'conclusion':
-            GetHeaderValue_param = {
-                '계좌명':1,
-                '종목명':2,
-                '체결수량':3,
-                '체결가격':4,
-                '주문번호':5,
-                '원주문번호':6,
-                '계좌번호':7,
-                '상품관리구분코드':8,
-                '종목코드':9,
-                '매매구분코드':12,
-                '체결구분코드':14,
-                '신용대출구분코드':15,
-                # 이하 생략
-            }
-            
-            print(
-                '계좌명:', self.client.GetHeaderValue(GetHeaderValue_param['계좌명']),
-                '종목명:', self.client.GetHeaderValue(GetHeaderValue_param['종목명']),
-                '체결수량:', self.client.GetHeaderValue(GetHeaderValue_param['체결수량']),
-                '체결가격:', self.client.GetHeaderValue(GetHeaderValue_param['체결가격']),
-            )
-
-
-class CpPublish:
-    def __init__(self, name, service_id):
-        self.name = name
-        # self.instCpConclusion = win32com.client.Dispatch("DsCbo1.CpConclusion")
-        self.obj = win32com.client.Dispatch(service_id)
-        self.bIsSubscribe = False
-
-    def subscribe(self, var, caller):
-        if self.bIsSubscribe == True:
-            self.unsubscribe()
-            
-        if len(var) > 0:
-            self.obj.SetInputValue(0, var)
-        
-        __handler = win32com.client.WithEvents(self.obj, CpEvent)
-        __handler.set_params(self.obj, self.name, caller)
-        self.obj.Subscribe()
-        self.bIsSubscribe = True
-
-    def unsubscribe(self):
-        if self.bIsSubscribe == True:
-            self.obj.Unsubscribe()
-            print(self.name, 'is unsubscribed')
-        self.bIsSubscribe = False
-
-    def test_result(self):
-        print('end!')
-
-class CpPBStockCur(CpPublish):
-    def __init__(self):
-        super().__init__('stockcur', 'DsCbo1.StockCur')
-
-class CpPBConclusion(CpPublish):
-    def __init__(self):
-        super().__init__('conclusion', 'DsCbo1.CpConclusion')
-
-######################################################################
-
 class StockInfo:
-    종목코드_음식료품 = 5
-
-# MarketEye.
-    # CreonMarketEye = {
-    #     4  : '현재가',
-    #     9  : '매수호가',
-    #     '거래량' : 10,
-    #     11 : '거래대금',
-    #     20 : '총상장주식수',
-    #     22 : '전일거래량',
-    #     67 : 'PER',
-    #     72 : '액면가',
-    #     75 : '부채비율',
-    #     77 : '자기자본이익률',
-    #     78 : '매출액증가율',
-    #     80 : '순이익증가율',
-    #     89 : 'BPS'
-    # }
-
     현재가_4 = 4 
     매수호가_9 = 9
     거래량_10 = 10          # **
     거래대금_11 = 11
+    종목명_17 = 17
     총상장주식수_20 = 20
     전일거래량_22 = 22      # **
     PER_67 = 67             # ** 주가/주당순이익
@@ -354,13 +166,53 @@ class StockInfo:
     BPS_89 = 89            # **s 주당순자산
 
     def __init__(self):
-        self.stUtils = Utils()
+        self.stUtils = utils.Utils()
 
         self.instMarketEye = win32com.client.Dispatch("CpSysDib.MarketEye")
 
         self.instCpCodeMgr = win32com.client.Dispatch("CpUtil.CpCodeMgr")
 
-    def GetInfo(self, stockName, requestType):
+    def getRequestTypeListBrief(self):
+        request_type_list = (
+            StockInfo.현재가_4,
+            StockInfo.거래량_10,
+            StockInfo.PER_67,
+            StockInfo.BPS_89
+        )
+        return request_type_list
+
+    def printRequestTypeListBrief(self, result):
+        print(
+            '    >',
+            '현재가:'  , format(result[0], ','), '원 |',
+            '거래량:'  , format(result[1], ','), '회 |',
+            'PER:'    , format(round(result[2], 2), ','), '배 |',
+            'BPS:'    , format(result[3], ','), '원',
+        )
+
+    def getRequestTypeListDetailed(self):
+        request_type_list = (
+            StockInfo.현재가_4,
+            StockInfo.거래량_10,
+            StockInfo.거래대금_11,
+            StockInfo.총상장주식수_20,
+            StockInfo.PER_67,
+            StockInfo.BPS_89
+        )
+        return request_type_list
+
+    def printRequestTypeListDetailed(self, result):
+        print(
+            '    >',
+            '현재가:'  , format(result[0], ','), '원 |',
+            '거래량:'  , format(result[1], ','), '회 |',
+            '거래대금:', format(result[2], ','), '원 |',
+            '총상장주식수', format(result[3], ','), '개 |',
+            'PER:'    , format(round(result[4], 2), ','), '배 |',
+            'BPS:'    , format(result[5], ','), '원',
+        )
+
+    def getInfo(self, stockName, requestType):
         필드_요청타입 = 0
         필드_주식코드 = 1
         # print('requestType : %s' % (requestType))
@@ -379,7 +231,19 @@ class StockInfo:
 
         return ret_value
 
-    def stockVolumeAnalysis(self, stockName, 몇배, days=60, bPrint=False):
+    def getInfoSimple(self, stockName, bPrint=False):
+        request_result_list = self.getInfo(stockName, self.getRequestTypeListBrief())
+        if bPrint == True:
+            self.printRequestTypeListBrief(request_result_list)
+        return request_result_list
+
+    def getInfoDetail(self, stockName, bPrint=False):
+        request_result_list = self.getInfo(stockName, self.getRequestTypeListDetailed())
+        if bPrint == True:
+            self.printRequestTypeListDetailed(request_result_list)
+        return 
+
+    def stockVolumeAnalysis(self, stockName, 몇배수, 비교기간=60, bPrint=False):
         # print('[stockVolumeAnalysis] 최근 거래량과 60일 평균 거래량 비교')
         # PSR : ?
         # PBR : Price Book-value Ratio(주가순자산비율) = 현재 주식 가격 / 주당 순자산
@@ -393,7 +257,7 @@ class StockInfo:
         # 2) 대량 거래 시점에 PBR 이 4보다 작아야 함
         __stockCode = self.stUtils.get_code_from_name(stockName)
         __거래량 = 8
-        self.stUtils.set_stock_chart_info(__stockCode, ord('2'), days, __거래량,  ord('D'), ord('1'))
+        self.stUtils.set_stock_chart_info(__stockCode, ord('2'), 비교기간, __거래량,  ord('D'), ord('1'))
 
         # server 에 요청
         self.stUtils.instStockChart.BlockRequest()
@@ -418,7 +282,7 @@ class StockInfo:
 
         # print('  > volumes[0] : %s' % (volumes[0]))
         # print('  > avgVolume : %s' % (avgVolume))
-        if volumes[0] > avgVolume * 몇배:
+        if volumes[0] > avgVolume * 몇배수:
             __거래량_배수 = round((volumes[0] / avgVolume), 3)
             if bPrint == True:
                 print('(거래량 %s 배) %s 은(는) 대박 주! ' % (__거래량_배수, stockName))
@@ -449,10 +313,4 @@ class StockInfo:
             print(stockCode, stockName)
 
         return targetCodeList
-
-
-class Algorithm:
-    def __init__(self):
-        pass
-    
 
