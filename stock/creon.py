@@ -30,21 +30,24 @@ class Trading:
 
     # 거래 관련부 : init -> setinputvalue -> blockrequest
     def trade_init(self):
-        ret = self.instCpTdUtil.TradeInit()
-        if self.logging == True:
-            if ret == 0:
+        bInitResult = self.instCpTdUtil.TradeInit()
+        bReturn = False
+        if bInitResult == 0:
+            if self.logging == True:
                 print('[tradeInit] 성공')
-            elif ret == -1:
-                print('[tradeInit] 오류')
-            elif ret == 1:
-                print('[tradeInit] OTP/보안카드 키 입력 잘못 됨')
-            elif ret == 3:
-                print('[tradeInit] 취소')
-            else:
-                print('[tradeInit] ??')
-        return ret
+            bReturn = True
+        elif bInitResult == -1:
+            print('[tradeInit] 오류')
+        elif bInitResult == 1:
+            print('[tradeInit] OTP/보안카드 키 입력 잘못 됨')
+        elif bInitResult == 3:
+            print('[tradeInit] 취소')
+        else:
+            print('[tradeInit] ??')
+        return bReturn
 
-    def 주식_주문(self, stockName, 주문단가, 주문수량):
+
+    def 주식_주문(self, stockName, 주문단가, 주문수량, bTest=False):
         SetInputValue_param = {
             '주문종류코드':0,
             '계좌번호':1,
@@ -52,22 +55,37 @@ class Trading:
             '종목코드':3,
             '주문수량':4,
             '주문단가':5,
-            # 이하 생량
+            '주문조건구분코드':7,
+            '주문호가구분코드':8,
+
+            # 이하 생략
         }
         __매도 = 1
         __매수 = 2
         __내_계좌_번호 = self.instCpTdUtil.AccountNumber[0]
         print('__내_계좌_번호:', __내_계좌_번호)
+        __상품관리구분코드 = {
+            '주식':1,
+            '선물/옵션':2,
+            'EUREX':16,
+            '해외선물':64,
+        } # __상품관리구분코드['주식'] + __상품관리구분코드['선물/옵션'] 요런 식으로 사용 가능함
+        __상품_목록 = self.instCpTdUtil.GoodsList(__내_계좌_번호, __상품관리구분코드['주식']) # __상품_목록은 배열임..!
+        print(__상품_목록)
         self.instCpTd0311.SetInputValue(SetInputValue_param['주문종류코드'], __매수)
         self.instCpTd0311.SetInputValue(SetInputValue_param['계좌번호'], __내_계좌_번호)
+        self.instCpTd0311.SetInputValue(SetInputValue_param['상품관리구분코드'], __상품_목록[0]) # 
         stockCode = self.stUtils.get_code_from_name(stockName)
         self.instCpTd0311.SetInputValue(SetInputValue_param['종목코드'], stockCode)
         self.instCpTd0311.SetInputValue(SetInputValue_param['주문수량'], 주문수량)
         self.instCpTd0311.SetInputValue(SetInputValue_param['주문단가'], 주문단가)
+        self.instCpTd0311.SetInputValue(SetInputValue_param['주문조건구분코드'], '0') # '0' : 없음 [default]
+        self.instCpTd0311.SetInputValue(SetInputValue_param['주문호가구분코드'], '01') # '01' : 보통 [default]
 
         # 요청
-        BlockRequest_result = self.instCpTd0311.BlockRequest()
-        print('result:', BlockRequest_result)
+        if bTest == False:
+            BlockRequest_result = self.instCpTd0311.BlockRequest()
+            print('result:', BlockRequest_result)
 
         # 결과 조회 -> Subscribe 방식으로 확인 해야함
         
@@ -98,7 +116,6 @@ class Trading:
         #                  }
 
         return self.requestJango(bPrint)
-    
 
     def requestJango(self, bPrint=False):
         while True:
@@ -133,9 +150,16 @@ class Trading:
                 item['장부가'] = self.instCpTd6033.GetDataValue(17, i)  # 체결장부단가
                 item['매입금액'] = item['장부가'] * item['잔고수량']
                 __n_days_list = self.stUtils.get_stock_value_n_days(code, 1) # parameter 가 1이 아닐 경우, 아래 code 수정 필요
-                item['현재가'] = __n_days_list[2] # 시가
+                item['현재가'] = __n_days_list[0][2] # 시가
                 item['대비'] = 0
                 item['거래량'] = 0
+
+                # 추가한 정보
+                item['손익단가'] = self.instCpTd6033.GetDataValue(18, i)
+                item['평가손익'] = self.instCpTd6033.GetDataValue(10, i)
+                item['수익률'] = self.instCpTd6033.GetDataValue(11, i)
+                item['평가금액'] = self.instCpTd6033.GetDataValue(9, i)
+
  
                 합계 = item['잔고수량'] * item['현재가']
                 if bPrint == True:
@@ -145,18 +169,20 @@ class Trading:
 
             if bPrint == True:
                 print('잔고 : %s' % format(잔고, ','))
-            if self.instCpTd6033.Continue == False:
+            if self.instCpTd6033.Continue == False: # README.md 의 '3. RQ/RP 의 연속 data 통신' 참고
                 break
         return ret_item_list
 
 class StockInfo:
     현재가_4 = 4 
+    고가_6 = 6
     매수호가_9 = 9
     거래량_10 = 10          # **
     거래대금_11 = 11
     종목명_17 = 17
     총상장주식수_20 = 20
     전일거래량_22 = 22      # **
+    전일종가_23 = 23
     PER_67 = 67             # ** 주가/주당순이익
     액면가_72 = 72
     부채비율_75 = 75        # ** 대차대조표의 부채 총액을 자기자본으로 나눈 비율
@@ -169,8 +195,6 @@ class StockInfo:
         self.stUtils = utils.Utils()
 
         self.instMarketEye = win32com.client.Dispatch("CpSysDib.MarketEye")
-
-        self.instCpCodeMgr = win32com.client.Dispatch("CpUtil.CpCodeMgr")
 
     def getRequestTypeListBrief(self):
         request_type_list = (
@@ -193,9 +217,11 @@ class StockInfo:
     def getRequestTypeListDetailed(self):
         request_type_list = (
             StockInfo.현재가_4,
+            StockInfo.고가_6,
             StockInfo.거래량_10,
             StockInfo.거래대금_11,
             StockInfo.총상장주식수_20,
+            StockInfo.전일종가_23,
             StockInfo.PER_67,
             StockInfo.BPS_89
         )
@@ -205,12 +231,16 @@ class StockInfo:
         print(
             '    >',
             '현재가:'  , format(result[0], ','), '원 |',
-            '거래량:'  , format(result[1], ','), '회 |',
-            '거래대금:', format(result[2], ','), '원 |',
-            '총상장주식수', format(result[3], ','), '개 |',
-            'PER:'    , format(round(result[4], 2), ','), '배 |',
-            'BPS:'    , format(result[5], ','), '원',
+            '고가:'    , format(result[1], ','), '원 |',
+            '거래량:'  , format(result[2], ','), '회 |',
+            '거래대금:', format(result[3], ','), '원 |',
+            '총상장주식수', format(result[4], ','), '개 |',
+            '전일종가', format(result[5], ','), '원 |',
+            'PER:'    , format(round(result[6], 2), ','), '배 |',
+            'BPS:'    , format(result[7], ','), '원',
         )
+
+    
 
     def getInfo(self, stockName, requestType):
         필드_요청타입 = 0
@@ -244,29 +274,18 @@ class StockInfo:
         return 
 
     def stockVolumeAnalysis(self, stockName, 몇배수, 비교기간=60, bPrint=False):
-        # print('[stockVolumeAnalysis] 최근 거래량과 60일 평균 거래량 비교')
-        # PSR : ?
-        # PBR : Price Book-value Ratio(주가순자산비율) = 현재 주식 가격 / 주당 순자산
-        #     : PBR 은 현재 주당 순자산의 몇배로 매매되고 있는지를 보여주는 지표이다.
-        #     : PBR 을 간단히 설명하면, 얼마나 튼튼하고 안정적인 기업인지를 판단하는 지표라고 생각하면 된다.
-        # BPS : Book-value Per Share(주당순자산) = 순자산 / 총 주식수
-        #     : 
-        
-        # [조건]
-        # 1) 대량 거래(거래량 1,000% 이상 급증) 종목
-        # 2) 대량 거래 시점에 PBR 이 4보다 작아야 함
         __stockCode = self.stUtils.get_code_from_name(stockName)
         __거래량 = 8
-        self.stUtils.set_stock_chart_info(__stockCode, ord('2'), 비교기간, __거래량,  ord('D'), ord('1'))
-
-        # server 에 요청
-        self.stUtils.instStockChart.BlockRequest()
+        self.stUtils.set_stock_chart_info_and_request(__stockCode, ord('2'), 비교기간, __거래량,  ord('D'), ord('1'))
 
         # server 에서 data 받아옴
         volumes = []
-        numData = self.stUtils.instStockChart.GetHeaderValue(3)
-        for i in range(numData):
-            volume = self.stUtils.instStockChart.GetDataValue(0, i)
+        __수신개수 = 3
+        __numData = self.stUtils.instStockChart.GetHeaderValue(__수신개수) # 비교기간 이랑 같을 듯.
+
+        __종목코드 = 0
+        for i in range(__numData):
+            volume = self.stUtils.instStockChart.GetDataValue(__종목코드, i)
             if volume == 0:
                 #print('%s 은(는) 거래가 중지된 품목입니다.' % (stockName))
                 return # 거래 중지된 경우
@@ -290,27 +309,4 @@ class StockInfo:
         else:
             return 0
             #print('(거래량 %s 배) %s 은(는) 일반 주.. ' % (round((volumes[0] / avgVolume), 3), stockName))
-
-    def getStockListByMarket(self):
-        CPC_MARKET_KOSP = 1
-        codeList = self.instCpCodeMgr.getStockListByMarket(CPC_MARKET_KOSP)
-        return codeList
-
-    def 업종_별_코드_리스트(self, bPrint=False):
-        industryCodeList = self.instCpCodeMgr.GetIndustryList()
-        
-        # industry name 출력
-        if bPrint == True:
-            for industryCode in industryCodeList:
-                print("%s - %s" % (industryCode, self.instCpCodeMgr.GetIndustryName(industryCode)))
-
-        return industryCodeList
-
-    def 업종_내_종목_코드_리스트(self, 업종코드):
-        targetCodeList = self.instCpCodeMgr.GetGroupCodeList(업종코드)
-        for stockCode in targetCodeList:
-            stockName = self.stUtils.get_name_from_code(stockCode)
-            print(stockCode, stockName)
-
-        return targetCodeList
 

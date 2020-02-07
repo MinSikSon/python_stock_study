@@ -7,16 +7,22 @@ class Connection:
         self.logging = logging
 
     def check_connect(self):
-        if ctypes.windll.shell32.IsUserAnAdmin():
-            if self.logging == True:
-                print("[check_connect] 정상: 관리자 권한으로 실행된 프로세스")
-        else:
+        bIsConnected = False
+
+        if ctypes.windll.shell32.IsUserAnAdmin() == False:
             print("[check_connect] 오류: 관리자 권한으로 실행하세요")
-        bConnect = self.instCpCybos.IsConnect
-        if bConnect == 1:
+            return False
+
+        if self.logging == True:
+            print("[check_connect] 정상: 관리자 권한으로 실행된 프로세스")
+
+        # 연결 상태 확인
+        if self.instCpCybos.IsConnect == 1:
+            bIsConnected = True
             if self.logging == True:
-                print("[check_connect] connect! (ret : %s)" % bConnect)
+                print("[check_connect] connect! (ret : %s)" % bIsConnected)
         else :
-            print("[check_connect] fail.. (ret : %s)" % bConnect)
+            bIsConnected = False
+            print("[check_connect] fail.. (ret : %s)" % bIsConnected)
             
-        return bConnect
+        return bIsConnected
