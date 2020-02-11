@@ -115,8 +115,18 @@ class Algorithm:
         stTrading = creon.Trading()
 
         if stTrading.trade_init() == True:
-            stock_code_list = self.stStockByIndustry.getStockListByMarket(creon_98_stocks_by_industry.StocksByIndustry.MARKET['코스피'])
-            stock_name_list = self.stUtils.get_nameList_from_codeList(stock_code_list)
+            # stTrading.주식_잔고_조회(bPrint=True)
+
+            self.stUtils.마감_까지_남은_시간_분_단위로_확인(bPrint=True)
+            self.stUtils.마감_까지_남은_시간_초_단위로_확인(bPrint=True)
+
+            exit()
+
+            # stock_code_list = self.stStockByIndustry.getStockListByMarket(creon_98_stocks_by_industry.StocksByIndustry.MARKET['코스피'])
+            # stock_name_list = self.stUtils.get_nameList_from_codeList(stock_code_list)
+
+            stock_name_list = Algorithm.보유_종목_리스트
+            stock_code_list = self.stUtils.get_codeList_from_nameList(stock_name_list)
 
             # print(stock_code_list)
             # exit()
@@ -132,7 +142,8 @@ class Algorithm:
             고가 = utils.Utils.InputValue_StockChart_Field_type['고가']
             종가 = utils.Utils.InputValue_StockChart_Field_type['종가']
 
-            __비교기간=500
+            # __비교기간=500
+            __비교기간=60
             bPrint=False
             for j in range(len(stock_code_list)):
                 result = self.stUtils.get_stock_value_n_days(stock_code_list[j], __비교기간)
@@ -153,7 +164,26 @@ class Algorithm:
                             print('[%s][%s] 고가: %s, 종가: %s (고저차: %s, 고저차누적: %s)' 
                             % (i, result[i][날짜], result[i][고가], result[i][종가], 고저차, 고저차누적))
 
-                    print('[종목명: %s] 조건성립횟수: %s, 비교횟수: %s (성립률: %s %%) (고저차평균: %s)' 
-                        % (stock_name_list[j], 조건성립횟수, 비교횟수, round(조건성립횟수/비교횟수*100, 2), round(고저차누적/비교횟수, 0)))
+                    __금일종가=format(result[0][종가], ',')
+                    __조건성립률=round(조건성립횟수/비교횟수*100, 2)
+                    __평균고저차=round(고저차누적/비교횟수, 0)
+                    __기대상승률=round(__평균고저차/result[0][종가]*100, 0)
+                    if True | (__조건성립률 > 93) | (__기대상승률 > 10):
+                        print('조건성립횟수: %s, 비교횟수: %s (성립률: %5s %%) (금일종가: %6s, 평균고저차: %5s => %4s %%) [종목명: %s]' 
+                            % (조건성립횟수, 비교횟수, __조건성립률, __금일종가, __평균고저차, __기대상승률, stock_name_list[j]) )
                 else:
-                    print('[종목명: %s] 데이터 얻기 실패' % (stock_name_list[j]))
+                    if bPrint == True:
+                        print('[종목명: %s] 데이터 얻기 실패' % (stock_name_list[j]))
+
+
+
+
+# 시나리오
+# 장 마감 1분 전, 현재 주가로 1 주 매수
+# 다음 날 장 열리기 까지 sleep
+# 평균고저차에 맞춰, 목표 수익률 계산
+# 목표 수익률에 매도 등록
+# 매도 완료 시 장 마감 2분 전까지 sleep
+# (처음으로 돌아가서 반복)
+    def algorithm_4(self):
+        pass
