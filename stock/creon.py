@@ -17,6 +17,13 @@ FALSE = 0
 # (6. 그래프)
 
 class Trading:
+    
+    BlockRequest_ReturnValue = {
+        '정상요청':0,
+        '통신요청실패':1,
+        '그외의내부오류':3
+    }
+
     def __init__(self, logging=False):
         self.logging = logging
 
@@ -47,7 +54,7 @@ class Trading:
         return bReturn
 
 
-    def 주식_주문(self, stockName, 주문단가, 주문수량, bTest=False):
+    def 주식_주문(self, 매매, stockName, 주문단가, 주문수량, bPrint=False, bTest=False):
         SetInputValue_param = {
             '주문종류코드':0,
             '계좌번호':1,
@@ -60,10 +67,13 @@ class Trading:
 
             # 이하 생략
         }
-        __매도 = 1
-        __매수 = 2
+
+        if ((매매 == 1) | (매매 == 2)) == False:
+            print('[param] 매매 를 1(매도) 또는 2(매수)로 지정하세요')
+            return
         __내_계좌_번호 = self.instCpTdUtil.AccountNumber[0]
-        print('__내_계좌_번호:', __내_계좌_번호)
+        if bPrint == True:
+            print('__내_계좌_번호:', __내_계좌_번호)
         __상품관리구분코드 = {
             '주식':1,
             '선물/옵션':2,
@@ -71,8 +81,9 @@ class Trading:
             '해외선물':64,
         } # __상품관리구분코드['주식'] + __상품관리구분코드['선물/옵션'] 요런 식으로 사용 가능함
         __상품_목록 = self.instCpTdUtil.GoodsList(__내_계좌_번호, __상품관리구분코드['주식']) # __상품_목록은 배열임..!
-        print(__상품_목록)
-        self.instCpTd0311.SetInputValue(SetInputValue_param['주문종류코드'], __매수)
+        if bPrint == True:
+            print(__상품_목록)
+        self.instCpTd0311.SetInputValue(SetInputValue_param['주문종류코드'], 매매) # 1: 매도, 2: 매수
         self.instCpTd0311.SetInputValue(SetInputValue_param['계좌번호'], __내_계좌_번호)
         self.instCpTd0311.SetInputValue(SetInputValue_param['상품관리구분코드'], __상품_목록[0]) # 
         stockCode = self.stUtils.get_code_from_name(stockName)
@@ -85,7 +96,13 @@ class Trading:
         # 요청
         if bTest == False:
             BlockRequest_result = self.instCpTd0311.BlockRequest()
-            print('result:', BlockRequest_result)
+            if BlockRequest_result == self.BlockRequest_ReturnValue['정상요청']:
+                if 매매 == 1: # 매도
+                    print('[주식_주문] result: 정상 요청 (%s 매도)' % (stockName))
+                elif 매매 == 2: # 매수
+                    print('[주식_주문] result: 정상 요청 (%s 매수)' % (stockName))
+            else:
+                print('[주식_주문] result: 문제 발생')
 
         # 결과 조회 -> Subscribe 방식으로 확인 해야함
         
@@ -271,7 +288,7 @@ class StockInfo:
         request_result_list = self.getInfo(stockName, self.getRequestTypeListDetailed())
         if bPrint == True:
             self.printRequestTypeListDetailed(request_result_list)
-        return 
+        return request_result_list
 
     def stockVolumeAnalysis(self, stockName, 몇배수, 비교기간=60, bPrint=False):
         __stockCode = self.stUtils.get_code_from_name(stockName)

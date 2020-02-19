@@ -45,6 +45,8 @@ class CpEvent:
                 '체결가격:', self.client.GetHeaderValue(GetHeaderValue_param['체결가격']),
             )
 
+            self.caller.complete = True # 체결
+
 class CpPublish:
     def __init__(self, name, service_id):
         self.name = name
@@ -52,6 +54,7 @@ class CpPublish:
         self.obj = win32com.client.Dispatch(service_id)
         self.bIsSubscribe = False
         self.local_value = 0
+        self.complete = False
 
     def subscribe(self, var, caller):
         if self.bIsSubscribe == True:
@@ -75,8 +78,12 @@ class CpPublish:
         if self.name == 'stockcur':
             self.local_value = value
         print('end!')
+
     def get_test_result(self):
         return self.local_value
+
+    def get_conclusion(self):
+        return self.complete
 
 class CpPBStockCur(CpPublish):
     def __init__(self):
@@ -88,3 +95,6 @@ class CpPBStockCur(CpPublish):
 class CpPBConclusion(CpPublish):
     def __init__(self):
         super().__init__('conclusion', 'DsCbo1.CpConclusion')
+        
+    def getConclusion(self):
+        return super().get_conclusion()

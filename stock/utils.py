@@ -100,7 +100,7 @@ class Utils:
                 break
 
 
-    def calculateTax(self, buying, selling):
+    def calculate_tax(self, buying, selling):
         # 매도 금액 - 매수 금액 - 매수 수수료 - 매도 수수료 - 매도 세금 > 0
         __selling_fee =0.015
         __buying_fee =0.015
@@ -136,6 +136,7 @@ class Utils:
         return __diff
 
     def 시작_까지_남은_시간(self, bPrint=False):
+        # __diff = self.주식_장_시작_시간() - self.현재_시간()
         __diff = self.주식_장_시작_시간() - self.현재_시간()
         if bPrint == True: print(__diff)
         return __diff

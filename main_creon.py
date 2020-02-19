@@ -23,8 +23,7 @@ if __name__ == '__main__':
         stAlgorithm = creon_99_algorithm.Algorithm()
 
         # stAlgorithm.algorithm_2()
-        __투자_후보_목록 = stAlgorithm.algorithm_3(1) # 1 : 코스닥
-        #stAlgorithm.algorithm_4(__투자_후보_목록)
+        stAlgorithm.algorithm_4()
         
         exit()
 ############################################################################
