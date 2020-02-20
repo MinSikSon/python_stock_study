@@ -1,6 +1,12 @@
 import win32com.client
 import ctypes
 
+import os
+# from pywinauto import application # python 3.x 에서 사용 불가
+import subprocess
+
+from time import sleep
+
 class Connection:
     def __init__(self, logging=False):
         self.instCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
@@ -26,3 +32,24 @@ class Connection:
             print("[check_connect] fail.. (ret : %s)" % bIsConnected)
             
         return bIsConnected
+
+    def kill_creon(self):
+        print('[kill_creon]')
+        os.system('taskkill /IM coStarter* /F /T')
+        os.system('taskkill /IM CpStart* /F /T')
+        os.system('taskkill /IM DibServer* /F /T')
+        os.system('wmic process where "name like \'%coStarter%\'" call terminate')
+        os.system('wmic process where "name like \'%CpStart%\'" call terminate')
+        os.system('wmic process where "name like \'%DibServer%\'" call terminate')
+
+    def run_creon(self, id, pwd, pwdcert):
+        print('[run_creon]')
+        cmd = [
+            'powershell.exe', 
+            'C:\CREON\STARTER\coStarter.exe /prj:cp /id:%s /pwd:%s /pwdcert:%s /autostart' % (id, pwd, pwdcert),
+            'Start-Process', 
+            ]
+        subprocess.run(cmd, shell=True)
+        while not self.check_connect():
+            sleep(1)
+        return True

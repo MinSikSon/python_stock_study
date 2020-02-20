@@ -123,11 +123,19 @@ class Algorithm:
     )
 
     매수_목록_0220 = (
-        'APS홀딩스',
-        '아이티엠반도체',
-        '이원컴포텍',
-        '켐트로닉스',
-        '세경하이테크',
+        '파인테크닉스',
+        '이더블유케이',
+        '인프라웨어',
+        '에이치엘비파워',
+        '제일바이오',
+    )
+
+    매도_가격_0220 = (
+        4060,
+        15200,
+        1285,
+        1425,
+        8995
     )
 
     크레온_수수료 = 0.015 # %
@@ -383,8 +391,6 @@ class Algorithm:
 
             __수익_리스트.append(__수익)
 
-            
-            
         if bPrint == True:
             print('##############################################################')
         return __추천_종목_리스트, __수익_리스트
@@ -424,8 +430,8 @@ class Algorithm:
         while True:
 # 장 중인지 확인
             bIsStockMarketOpen = self.stUtils.장_중인지_확인()
-            if bDBG == True:
-                bIsStockMarketOpen = True # for DBG
+            # if bDBG == True:
+            #     bIsStockMarketOpen = True # for DBG
 
             print('# [1] 장 중인지 확인: %s' % (bIsStockMarketOpen))
 
@@ -459,8 +465,8 @@ class Algorithm:
                 # 매도 <-- 어제 매수한 종목에 대한 매도 주문
                 selling_subscribe_stockconclusion_list = []
                 for i in range(len(주식_잔고_리스트)):
-                    for j in range(len(self.매수_목록_0218)):
-                        if 주식_잔고_리스트[i]['종목명'] == self.매수_목록_0218[j] :
+                    for j in range(len(self.매수_목록_0220)):
+                        if 주식_잔고_리스트[i]['종목명'] == self.매수_목록_0220[j] :
                             # subscribe
                             __stCpStockConclusion = creon_1_SB_PB.CpPBConclusion()
                             __code = self.stUtils.get_code_from_name(주식_잔고_리스트[i]['종목명'])
@@ -470,8 +476,10 @@ class Algorithm:
                             # 매도 수행
                             self.stTrading.주식_주문( # *** 매수/매도 주문은 정상 동작함
                                 매매 = 1, # 1: 매도, 2: 매수
-                                stockName=주식_잔고_리스트[i]['종목명'],
-                                주문단가=(주식_잔고_리스트[i]['손익단가'] * 1.02), # 손익단가 * 1.02 == 2 % 높게 매도
+                                stockName=self.매수_목록_0220[j],
+                                # 주문단가=(주식_잔고_리스트[i]['손익단가'] * 1.02), # 손익단가 * 1.02 == 2 % 높게 매도
+                                주문단가=self.매도_가격_0220[j], # 손익단가 * 1.02 == 2 % 높게 매도
+                                # 주문 단가 자리 수 맞춰야 함.
                                 주문수량=1,
                                 bPrint=False,
                                 bTest=False
@@ -500,87 +508,85 @@ class Algorithm:
                     print('장 마감까지 %s 초 남음 (%s) (매수 타이밍: %s 초 전)' % (__마감까지_남은시간, __bBuyStock, __매수_타이밍))
                     sleep(1)
                     
-                # bBuyStock = True
-                if __bBuyStock == True: # 23400 = 15:30 - 09:00
 # >> 매수 종목 정보 검색
-                    for i in range(len(__투자_후보_이름)):
-                        print(__투자_후보_이름[i])
-                        __투자_후보_현재_정보_리스트.append(self.stStockInfo.getInfoDetail(__투자_후보_이름[i], bPrint=True)) # 출력되는 정보 순서 참고. 추후 dictionary 로 변경하면 좋을 듯,
-                    
+                for i in range(len(__투자_후보_이름)):
+                    print(__투자_후보_이름[i])
+                    __투자_후보_현재_정보_리스트.append(self.stStockInfo.getInfoDetail(__투자_후보_이름[i], bPrint=True)) # 출력되는 정보 순서 참고. 추후 dictionary 로 변경하면 좋을 듯,
+                
 # >> 매수 수행
-                    if bTradeInit == True:
+                if bTradeInit == True:
 # >>> (optional) 실시간 주가 subscribe
-                        subscribe_stockcur_list = []
-                        for i in range(len(__투자_후보_이름)):
-                            __stCpStockCur = creon_1_SB_PB.CpPBStockCur() # 실시간 주가 변동 확인 위해서 사용 *************** 현재 가격 받아오는건 정상동작 안함..
-                            __code = self.stUtils.get_code_from_name(__투자_후보_이름[i])
-                            __stCpStockCur.subscribe(__code, __stCpStockCur) # 실시간 거래 가능시간 이외에는, 현재가 고정이기 때문에 subscribe 해도 받는(receive)게 없다.
-                            subscribe_stockcur_list.append(__stCpStockCur)
+                    subscribe_stockcur_list = []
+                    for i in range(len(__투자_후보_이름)):
+                        __stCpStockCur = creon_1_SB_PB.CpPBStockCur() # 실시간 주가 변동 확인 위해서 사용 *************** 현재 가격 받아오는건 정상동작 안함..
+                        __code = self.stUtils.get_code_from_name(__투자_후보_이름[i])
+                        __stCpStockCur.subscribe(__code, __stCpStockCur) # 실시간 거래 가능시간 이외에는, 현재가 고정이기 때문에 subscribe 해도 받는(receive)게 없다.
+                        subscribe_stockcur_list.append(__stCpStockCur)
 
-                        subscribe_stockconclusion_list = []
-                        for i in range(len(__투자_후보_이름)):
-                            __stCpStockConclusion = creon_1_SB_PB.CpPBConclusion()
-                            __code = self.stUtils.get_code_from_name(__투자_후보_이름[i])
-                            __stCpStockConclusion.subscribe(__code, __stCpStockConclusion)
-                            subscribe_stockconclusion_list.append(__stCpStockConclusion)
-                            self.stTrading.주식_주문( # *** 매수 주문은 정상 동작함
-                                매매 = 2, # 매수
-                                stockName=__투자_후보_이름[i],
-                                주문단가=__투자_후보_현재_정보_리스트[i][0], # 현재가
-                                주문수량=1,
-                                bPrint=False,
-                                bTest=False
-                            )
+                    subscribe_stockconclusion_list = []
                     
-                        __selling_conclusion_count = 0
-                        __selling_conclusion_max = len(self.매수_목록_0218)
-                        __conclusion_count = 0
-                        __conclusion_max = len(__투자_후보_이름)
+                    for i in range(len(__투자_후보_이름)):
+                        __stCpStockConclusion = creon_1_SB_PB.CpPBConclusion()
+                        __code = self.stUtils.get_code_from_name(__투자_후보_이름[i])
+                        __stCpStockConclusion.subscribe(__code, __stCpStockConclusion)
+                        subscribe_stockconclusion_list.append(__stCpStockConclusion)
+                        self.stTrading.주식_주문( # *** 매수 주문은 정상 동작함
+                            매매 = 2, # 매수
+                            stockName=__투자_후보_이름[i],
+                            주문단가=__투자_후보_현재_정보_리스트[i][0], # 현재가
+                            주문수량=1,
+                            bPrint=False,
+                            bTest=False
+                        )
+                
+                    __selling_conclusion_count = 0
+                    __selling_conclusion_max = len(selling_subscribe_stockconclusion_list)
+                    __conclusion_count = 0
+                    __conclusion_max = len(__투자_후보_이름)
 # >>> 매수 성공 확인
-                        while True:
-                            sleep(1)
+                    while True:
+                        sleep(1)
+                        for i in range(__selling_conclusion_max):
+                            if selling_subscribe_stockconclusion_list[i].getConclusion() == True:
+                                __selling_conclusion_count += 1
+                        for i in range(__conclusion_max):
+                            if subscribe_stockconclusion_list[i].getConclusion() == True:
+                                __conclusion_count += 1
+                        
+                        print('[%s] 매도 성공 대기: (%s/%s)' % (self.stUtils.현재_시간(), __selling_conclusion_count, __selling_conclusion_max))
+                        print('[%s] 매수 성공 대기: (%s/%s)' % (self.stUtils.현재_시간(), __conclusion_count, __conclusion_max))
+                        
+                        if (__selling_conclusion_count == __selling_conclusion_max) & (__conclusion_count == __conclusion_max):
+                            break
+                        else:
+                            __selling_conclusion_count = 0
+                            __conclusion_count = 0
+
+                        # 매도 실패에 대한 예외처리 필요.
+                        if self.stUtils.마감_까지_남은_시간().total_seconds() <= 60:
+                            # 현재가로 매도 필요한 종목 목록..!
                             for i in range(__selling_conclusion_max):
-                                if selling_subscribe_stockconclusion_list[i].getConclusion() == True:
-                                    __selling_conclusion_count += 1
-                            for i in range(__conclusion_max):
-                                if subscribe_stockconclusion_list[i].getConclusion() == True:
-                                    __conclusion_count += 1
-                            
-                            print('[%s] 매도 성공 대기: (%s/%s)' % (self.stUtils.현재_시간(), __selling_conclusion_count, __selling_conclusion_max))
-                            print('[%s] 매수 성공 대기: (%s/%s)' % (self.stUtils.현재_시간(), __conclusion_count, __conclusion_max))
-                            
-                            if (__selling_conclusion_count == __selling_conclusion_max) & (__conclusion_count == __conclusion_max):
-                                break
-                            else:
-                                __selling_conclusion_count = 0
-                                __conclusion_count = 0
+                                if selling_subscribe_stockconclusion_list[i].getConclusion() == False: # 매도 안된 경우
+                                    __종목명 = self.매수_목록_0218[i]
+                                    print(__종목명)
+                                    __stockInfo = self.stStockInfo.getInfoDetail(__종목명, bPrint=True)
+                                    __현재가 = __stockInfo[0]
+                                    # [TODO] 매도 주문 취소
 
-                            # 매도 실패에 대한 예외처리 필요.
-                            if self.stUtils.마감_까지_남은_시간().total_seconds() <= 60:
-                                # 현재가로 매도 필요한 종목 목록..!
-                                for i in range(__selling_conclusion_max):
-                                    if selling_subscribe_stockconclusion_list[i].getConclusion() == False: # 매도 안된 경우
-                                        __종목명 = self.매수_목록_0218[i]
-                                        print(__종목명)
-                                        __stockInfo = self.stStockInfo.getInfoDetail(__종목명, bPrint=True)
-                                        __현재가 = __stockInfo[0]
-                                        # [TODO] 매도 주문 취소
-
-                            exit()
+                        exit()
 
 # >>> 모든 subscribe 해제
-                        # 매도 종목 unsubscribe
-                        for i in range(len(len(self.매수_목록_0218))):
-                            selling_subscribe_stockconclusion_list[i].unsubscribe()
-                        # 매수 종목 unsubscribe
-                        for i in range(len(__투자_후보_이름)):
-                            subscribe_stockcur_list[i].unsubscribe()
-                            subscribe_stockconclusion_list[i].unsubscribe()
+                    # 매도 종목 unsubscribe
+                    for i in range(len(len(self.매수_목록_0218))):
+                        selling_subscribe_stockconclusion_list[i].unsubscribe()
+                    # 매수 종목 unsubscribe
+                    for i in range(len(__투자_후보_이름)):
+                        subscribe_stockcur_list[i].unsubscribe()
+                        subscribe_stockconclusion_list[i].unsubscribe()
 
-                        
+                if bDBG == True:
+                    bExit = True
 
-                    if bDBG == True:
-                        bExit = True
 
             if bExit == True:
                 break

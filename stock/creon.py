@@ -24,6 +24,11 @@ class Trading:
         '그외의내부오류':3
     }
 
+    매매 = {
+        '매도':1,
+        '매수':2
+    }
+
     def __init__(self, logging=False):
         self.logging = logging
 

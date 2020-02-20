@@ -11,13 +11,19 @@ import pythoncom
 
 from stock import creon_99_algorithm
 
-TRUE = 1
-FALSE = 0
+from getpass import getpass
 
 # global variables
 
 if __name__ == '__main__':
-    if creon_0_Init.Connection(logging=True).check_connect() == TRUE :
+    stInit = creon_0_Init.Connection(logging=False)
+    stInit.kill_creon()
+    print('########## CREON Login ##########')
+    __id = input('id: ')
+    __pwd = getpass('pwd: ')
+    __pwdcert = getpass('pwdcert: ')
+    print('########## ########### ##########')
+    if stInit.run_creon(__id, __pwd, __pwdcert) == True :
 ############################################################################
 # test
         stAlgorithm = creon_99_algorithm.Algorithm()
@@ -29,6 +35,7 @@ if __name__ == '__main__':
 ############################################################################
 
         stUtils = utils.Utils()
+
         stStockInfo = creon.StockInfo()
 
 # 주식 잔고 및 거래 관련
@@ -77,7 +84,7 @@ if __name__ == '__main__':
                 current_stock_value = stCpStockCur.get_test_result()
                 print('current_stock_value:', current_stock_value)
                 if True | current_stock_value != 0:
-                    stTrading.주식_주문(__stock_name, current_stock_value - 500, 1, bTest=True) # 현재가 보다 500 원 낮은 가격에 1주 매수
+                    stTrading.주식_주문(creon.Trading.매매['매수'], __stock_name, current_stock_value - 500, 1, bTest=True) # 현재가 보다 500 원 낮은 가격에 1주 매수
                     
                     stCpStockCur.unsubscribe()
                     break
