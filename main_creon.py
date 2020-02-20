@@ -17,13 +17,17 @@ from getpass import getpass
 
 if __name__ == '__main__':
     stInit = creon_0_Init.Connection(logging=False)
-    stInit.kill_creon()
-    print('########## CREON Login ##########')
-    __id = input('id: ')
-    __pwd = getpass('pwd: ')
-    __pwdcert = getpass('pwdcert: ')
-    print('########## ########### ##########')
-    if stInit.run_creon(__id, __pwd, __pwdcert) == True :
+    bConnect = stInit.check_connect()
+    if bConnect == False:
+        stInit.kill_creon()
+        print('########## CREON Login ##########')
+        __id = input('id: ')
+        __pwd = getpass('pwd: ')
+        __pwdcert = getpass('pwdcert: ')
+        print('########## ########### ##########')
+        bConnect = stInit.run_creon(__id, __pwd, __pwdcert)
+
+    if bConnect == True :
 ############################################################################
 # test
         stAlgorithm = creon_99_algorithm.Algorithm()
