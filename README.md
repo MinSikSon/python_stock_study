@@ -1,3 +1,5 @@
+# 작업 repo 가 https://github.com/ara-official/Warren_Buffett/tree/add_creon_util/stock 로 변경되었습니다.
+
 # python_webcrawler
 ### [OS X] script
 * `$ ./0_install.sh`

@@ -7,10 +7,19 @@ import subprocess
 
 from time import sleep
 
+from stock import login
+
 class Connection:
     def __init__(self, logging=False):
         self.instCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
         self.logging = logging
+
+    def do_connect(self):
+        bConnect = self.check_connect()
+        if bConnect == False:
+            self.kill_creon()
+            bConnect = self.run_creon(login.id, login.pwd, login.pwdcert)
+        return bConnect
 
     def check_connect(self):
         bIsConnected = False

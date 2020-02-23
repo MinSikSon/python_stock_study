@@ -8,6 +8,10 @@ from time import sleep
 
 from stock import creon_1_SB_PB
 
+from stock import creon_0_Init
+
+from stock import login # .gitignore
+
 class Algorithm:
     관심_종목_리스트 = (
         '삼성전자',
@@ -135,12 +139,14 @@ class Algorithm:
         15200,
         1285,
         1425,
-        8995
+        9000 # 8995 였는데, 자리수 맞췄어야 함, 
     )
 
     크레온_수수료 = 0.015 # %
 
     def __init__(self):
+        self.stInit = creon_0_Init.Connection(logging=True)
+
         self.stUtils = utils.Utils()
         self.stStockByIndustry = creon_98_stocks_by_industry.StocksByIndustry()
 
@@ -418,32 +424,27 @@ class Algorithm:
 # (처음으로 돌아가서 반복) <-- x
 # TODO: 크레온 프로그램 종료
     def algorithm_4(self):
-        bDBG = True
 
-        __stock_market_start_time = self.stUtils.주식_장_시작_시간()
-        __time_until_start = self.stUtils.시작_까지_남은_시간(True)
-        __time_until_end = self.stUtils.마감_까지_남은_시간(True)
+        __bDBG = True
 
-        bExit = False
-        bIsStockMarketOpen = False
+        __bExit = False
+        __bIsStockMarketOpen = False
 
         while True:
 # 장 중인지 확인
-            bIsStockMarketOpen = self.stUtils.장_중인지_확인()
-            # if bDBG == True:
-            #     bIsStockMarketOpen = True # for DBG
+            __bIsStockMarketOpen = self.stUtils.장_중인지_확인()
+            bConnect = self.stInit.do_connect() # NOTE: always return True. 
+            if __bDBG == True:
+                __bIsStockMarketOpen = True
+                bConnect = True
+                print('__bIsStockMarketOpen: %s, bConnect: %s' % (__bIsStockMarketOpen, bConnect))
 
-            print('# [1] 장 중인지 확인: %s' % (bIsStockMarketOpen))
-
-            if bIsStockMarketOpen == False:
 # >> 장 열릴 때까지 대기
+            if (bConnect == False) | (__bIsStockMarketOpen == False):
                 print('# >> 장 열릴 때까지 대기')
                 while True:
                     sleep(1)
-                    # __time_until_start = self.stUtils.시작_까지_남은_시간()
-                    # print('주식 시작까지 남은 시간 : %s (%s)' % (__time_until_start, __time_until_start.total_seconds()))
                     print('현재 시간 : %s' % (self.stUtils.현재_시간()))
-                    # if __time_until_start.total_seconds() < 0:
                     if self.stUtils.장_중인지_확인() == True:
                         print('주식 장 시작!!!!!!!!!!!!!!!!!!!')
                         break
@@ -495,12 +496,12 @@ class Algorithm:
                 # sleep(1)
                 __투자_후보_현재_정보_리스트 = []
                 __bBuyStock = False
-                # if bDBG == True:
+                # if __bDBG == True:
                 #     __bBuyStock = True
                 __매수_타이밍 = 60
                 while __bBuyStock == False:
                     __마감까지_남은시간 = self.stUtils.마감_까지_남은_시간().total_seconds()
-                    # if bDBG == True:
+                    # if __bDBG == True:
                     #     __bBuyStock = True # for DBG
                     # else:
                     __bBuyStock = (__마감까지_남은시간 <= __매수_타이밍)
@@ -584,11 +585,11 @@ class Algorithm:
                         subscribe_stockcur_list[i].unsubscribe()
                         subscribe_stockconclusion_list[i].unsubscribe()
 
-                if bDBG == True:
-                    bExit = True
+                if __bDBG == True:
+                    __bExit = True
 
 
-            if bExit == True:
+            if __bExit == True:
                 break
                 
 

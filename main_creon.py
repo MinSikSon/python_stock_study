@@ -13,6 +13,8 @@ from stock import creon_99_algorithm
 
 from getpass import getpass
 
+from stock import login
+
 # global variables
 
 if __name__ == '__main__':
@@ -21,11 +23,12 @@ if __name__ == '__main__':
     if bConnect == False:
         stInit.kill_creon()
         print('########## CREON Login ##########')
-        __id = input('id: ')
-        __pwd = getpass('pwd: ')
-        __pwdcert = getpass('pwdcert: ')
-        print('########## ########### ##########')
-        bConnect = stInit.run_creon(__id, __pwd, __pwdcert)
+        # __id = input('id: ')
+        # __pwd = getpass('pwd: ')
+        # __pwdcert = getpass('pwdcert: ')
+        # print('########## ########### ##########')
+        # bConnect = stInit.run_creon(__id, __pwd, __pwdcert)
+        bConnect = stInit.run_creon(login.id, login.pwd, login.pwdcert)
 
     if bConnect == True :
 ############################################################################
